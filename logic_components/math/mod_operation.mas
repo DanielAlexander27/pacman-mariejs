@@ -1,0 +1,22 @@
+// Start - mod().
+// Calculates mod operation between dividend and divisor.
+mod(dividend;divsor), HEX 000
+	Clear
+	Store mod.result
+
+	mod.while, Load mod.dividend
+		Subt mod.divisor
+		SkipCond 000
+			Jump mod.while_cont
+		Jump mod.return
+		mod.while_cont, Store mod.dividend
+			Jump mod.while
+
+	mod.return, Load mod.dividend
+		Store mod.result
+		JumpI mod(dividend;divsor)
+
+mod.dividend, DEC 0
+mod.divisor, DEC 0
+mod.result, DEC 0
+// End - mod()

@@ -1,4 +1,12 @@
-// Start - mod().
+// Input
+// Store mod.dividend
+// Input
+// Store mod.divisor
+// JnS mod(dividend;divsor)
+// Output
+// Halt
+
+// Start - mod()
 // Calculates mod operation between dividend and divisor.
 mod(dividend;divsor), HEX 000
 	Clear

@@ -1,0 +1,167 @@
+/ main, Load currentPos
+/ Store vP.currentPos
+/ Add +16
+/ Store vP.posToCheck
+/ JnS validatePos(currentPos;posToCheck)
+/ Output
+/ Halt
+
+/ currentPos, HEX F60
+
+// Start - validatePos()
+validatePos(currentPos;posToCheck), HEX 000
+	Clear
+	Store vP.result
+
+	vP.validateUp, Load vP.posToCheck
+		SkipCond 000
+			Jump vP.validateDown
+		Load vP.currentPos
+		Add +240
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	vP.validateDown, Load DISPLAY_END
+		Subt vP.posToCheck
+		SkipCond 000
+			Jump vP.validateRigthColumn
+		Load vP.currentPos
+		Subt +240
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	vP.validateRigthColumn, Load vP.posToCheck
+		Subt OFFSET
+		Store mod.dividend
+		Load +16
+		Store mod.divisor
+		JnS mod(dividend;divsor)
+		SkipCond 400
+			Jump vP.validateLeftColumn
+		Load vP.currentPos
+		Subt vP.posToCheck
+		Add +1
+		SkipCond 400 // the difference should be by only 1
+			Jump vP.validateLeftColumn
+		Load vP.currentPos
+		Subt +15
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+		
+	vP.validateLeftColumn, Load vP.posToCheck
+		Subt OFFSET
+		Store mod.dividend
+		Load +16
+		Store mod.divisor
+		JnS mod(dividend;divsor)
+		Subt +15
+		SkipCond 400
+			Jump vP.validatePosToCheck
+		Load vP.posToCheck
+		Subt vP.currentPos
+		Add +1
+		SkipCond 400 // the difference should be by only 1
+			Jump vP.validatePosToCheck
+		Load vP.currentPos
+		Add +15
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	vP.validatePosToCheck, Load vP.posToCheck
+	Store isWall.posToCheck
+	JnS isWall(postToCheck)
+	SkipCond 400
+		Jump vP.wallDetected
+	Load vP.posToCheck
+	Jump vP.storeResult
+
+	vP.storeResult, Store vP.result
+		Jump vP.return
+	
+	vP.wallDetected, Load -1
+		Store vP.result
+		Jump vP.return
+
+	vP.return, JumpI validatePos(currentPos;posToCheck)
+	
+vP.currentPos, DEC 0
+vP.posToCheck, DEC 0
+vP.result, DEC 0
+// End - validatePos()
+
+// Start - isWall()
+// Return 1 if there is a wall and 0 if there is no wall.
+isWall(postToCheck), hex 000
+	Load -1
+	Store isWall.result
+
+	LoadI isWall.posToCheck
+	Subt PARED_COLOR
+	SkipCond 0C00
+		Jump isWall.wallDetected
+	Jump isWall.noWallDetected
+
+	isWall.wallDetected, Load +1
+		Store isWall.result
+		Jump isWall.return
+	
+	isWall.noWallDetected, Load ZERO
+		Store isWall.result
+
+	isWall.return, JumpI isWall(postToCheck)
+	
+isWall.posToCheck, DEC 0
+isWall.result, DEC -1
+
+// End - isWall()
+
+// Start - mod()
+// Calculates mod operation between dividend and divisor.
+mod(dividend;divsor), HEX 000
+	Clear
+	Store mod.result
+
+	mod.while, Load mod.dividend
+		Subt mod.divisor
+		SkipCond 000
+			Jump mod.while_cont
+		Jump mod.return
+		mod.while_cont, Store mod.dividend
+			Jump mod.while
+
+	mod.return, Load mod.dividend
+		Store mod.result
+		JumpI mod(dividend;divsor)
+
+mod.dividend, DEC 0
+mod.divisor, DEC 0
+mod.result, DEC 0
+// End - mod()
+
+// Constants
+OFFSET, HEX F00
+DISPLAY_END, HEX FFF
+PARED_COLOR, HEX 421B
+ZERO, DEC 0
++1, DEC 1
+-1, DEC -1
++15, DEC 15
++16, DEC 16
++240, DEC 240
++255, DEC 255

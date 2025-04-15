@@ -14,6 +14,7 @@ validatePos(currentPos;posToCheck), HEX 000
 	Store vP.result
 
 	vP.validateUp, Load vP.posToCheck
+        Subt OFFSET
 		SkipCond 000
 			Jump vP.validateDown
 		Load vP.currentPos

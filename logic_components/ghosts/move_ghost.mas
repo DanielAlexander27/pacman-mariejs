@@ -1,0 +1,533 @@
+Jump main
+
+inky_pos, HEX FD3
+wallPos1, HEX FFA
+wallPos2, HEX F10
+pacmanPos, HEX F3A
+inky_direction, DEC 0
+inky_target, DEC -1
+
+PTR_INKY_PRIORIDAD_ARRAY, HEX 7
+INKY_PRIORIDAD_ARRAY, DEC 16
+	DEC -1
+	DEC -16
+	DEC 1
+
+main, Load PAC-MAN_COLOR
+StoreI pacmanPos
+
+Load INKY_COLOR
+StoreI inky_pos
+
+Load PARED_COLOR
+StoreI wallPos1
+StoreI wallPos2
+
+
+Load inky_direction
+Store mG.ghost_direction
+Load inky_pos
+Store mG.ghost_pos
+Load INKY_COLOR
+Store mG.ghost_color
+Load inky_target
+Store mG.ghost_target
+Load PTR_INKY_PRIORIDAD_ARRAY
+Store mG.ptr_array_prioridad
+
+while, JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+	Load mG.positionToMove
+	Store inky_pos
+	Load mG.ghost_direction
+	Store inky_direction
+	Load mG.ghost_target
+	Store inky_target
+
+Jump while
+
+Halt
+
+moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad), Hex 0
+	Load mG.ghost_pos
+	Store dP.initialPos
+	Load mG.ghost_color
+	Store dP.ghostColor
+
+	JnS detectPacman(initialPos;ghostColor)
+	Load dP.result
+	SkipCond 0C00
+		Jump mG.validateTarget
+	Store mG.ghost_direction
+	Load pacmanPos
+	Store mG.ghost_target
+	
+	mG.move_to_target, Load mG.ghost_pos
+		Add mG.ghost_direction
+		Store mG.positionToMove
+		Jump mG.movePos
+
+	mG.validateTarget, Load mG.ghost_target
+		SkipCond 000
+			Jump mG.targetReached
+		Jump mG.generateRandom
+
+		mG.targetReached, Load mG.ghost_pos
+			Subt mG.ghost_target
+			SkipCond 0C00
+				Jump mG.generateRandom
+			Jump mG.move_to_target
+
+	mG.generateRandom, LoadImmi -1
+		Store mG.ghost_target
+		LoadImmi 0
+		Store mG.ghost_direction
+		
+		Load mG.ghost_pos
+		Store gPA.pos_inicial
+		Load mG.ptr_array_prioridad
+		Store gPA.ptr_array_prioridad
+		Jns getPosAvail(pos_inicial;ptr_array_prioridad)
+		Load gPA.len_array
+		Store rnd.num_pos_avail
+		JnS random(num_pos_avail)
+
+		Load gPA.ptr_result_array
+		Add rnd.result
+		Store mG.temp_ptr
+		LoadI mG.temp_ptr // position of interest to move
+		Store mG.positionToMove
+
+	mG.movePos, Load mG.ghost_color
+		StoreI mG.positionToMove
+		Clear
+		StoreI mG.ghost_pos
+		
+	mG.return, JumpI moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+
+	mG.ghost_direction, DEC 0
+	mG.positionToMove, DEC 0
+	mG.temp_ptr, DEC 0
+	mG.ghost_pos, Dec 0
+	mG.ghost_color, DEC 0
+	mG.ptr_array_prioridad, DEC 0
+	mG.ghost_target, DEC -1
+
+// Start - detectPacman()
+// It returns the orientation where the ghost should go (up, down, left or right)
+// by returning -16, +16, -1 or +1, respectively. It returns 0 if pacman is not detected.
+detectPacman(initialPos;ghostColor), HEX 000
+	Clear
+	Store dP.result
+
+	// Check if pacman and ghost are in the same column
+	Load +16
+	Store mod.divisor
+	Load pacmanPos
+	Store mod.dividend
+	Jns mod(dividend;divsor)
+	Load mod.result
+	Store dP.temp
+
+	Load dP.initialPos
+	Store mod.dividend
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Subt dP.temp
+	SkipCond 0C00
+		Jump dP.validateUp
+	// Check if pacman and ghost are in the same row
+	Load pacmanPos
+	Subt dP.initialPos
+	Add +15
+	
+	SkipCond 0C00 
+		Jump dP.validateRight
+	SkipCond 800
+		Jump dP.return
+	Subt +31
+	SkipCond 000
+		Jump dP.return
+	Jump dP.validateRight
+
+	// Loop to go tho the right
+	dP.validateRight, Load dP.initialPos
+	Store dP.prevPos
+	Add +1
+	Store dP.currentPos
+	Load +1
+	Store dP.addend
+	JnS dP.while
+	
+	// Loop to go to the left
+	dP.validateLeft, Load dP.initialPos
+	Store dP.prevPos
+	Subt +1
+	Store dP.currentPos
+	Load -1
+	Store dP.addend
+	JnS dP.while
+	
+	Jump dP.return
+
+	// Loop to go up
+	dP.validateUp, Load dP.initialPos
+	Store dP.prevPos
+	Subt +16
+	Store dP.currentPos
+	Load -16
+	Store dP.addend
+	JnS dP.while
+
+	// Loop to go down
+	dp.validateDown, Load dP.initialPos
+	Store dP.prevPos
+	Add +16
+	Store dP.currentPos
+	Load +16
+	Store dP.addend
+	JnS dP.while
+	Jump dP.return
+
+	dP.while, HEX 000
+		dP.startWhile, Load dP.prevPos
+		Store vP.currentPos
+		Load dP.currentPos
+		Store vP.posToCheck
+
+		JnS validatePos(currentPos;posToCheck)
+		Load vP.result
+		Store dP.currentPos
+		SkipCond 000
+			Jump dP.checkGhost
+		Jump dp.exitWhile
+
+		dP.checkGhost, LoadI vP.result
+			Subt dP.ghostColor
+			SkipCond 0C00
+				Jump dp.exitWhile
+		// check pac-man
+		LoadI vP.result
+		Subt PAC-MAN_COLOR
+		SkipCond 400
+			Jump dp.continueWhile
+		Load dP.addend
+		Jump dp.storeResult
+		
+		dp.continueWhile, Load dP.currentPos
+			Store dP.prevPos
+			Add dP.addend
+			Store dP.currentPos
+			Jump dP.startWhile
+		
+		dp.exitWhile, JumpI dP.while	
+
+	dp.storeResult, Store dP.result
+	dP.return, JumpI detectPacman(initialPos;ghostColor)
+
+	dP.temp, DEC 0
+	dP.initialPos, DEC 0
+	dP.prevPos, DEC 0
+	dP.currentPos, DEC 0
+	dP.ghostColor, DEC -1
+	dP.addend, DEC -1
+	dP.result, DEC 0
+// End - detectPacman()
+
+
+// -------------------- START - get_pos_avail() ------------------------
+// Funcion para obtener posiciones disponibles de una entidad
+// Devuelve el puntero del array con las posiciones disponibles y también el
+// tamaño de este
+
+getPosAvail(pos_inicial;ptr_array_prioridad), HEX 0
+	Jump gPA.result_array
+	gPA.main, Load gPA.ptr_result_array
+	Store gPA.temp_ptr
+	LoadImmi 4
+	Store gPA.ctr
+	
+	Load gPA.pos_inicial
+	Store vP.currentPos
+	
+	gPA.while, LoadI gPA.ptr_array_prioridad
+	Add gPA.pos_inicial
+	Store vP.posToCheck
+	JnS validatePos(currentPos;posToCheck)
+	SkipCond 000
+		Jump gPA.store_value
+	gPA.incrementar, Load gPA.ptr_array_prioridad
+	Add +1
+	Store gPA.ptr_array_prioridad
+	Load gPA.ctr
+	Subt +1
+	Store gPA.ctr
+	SkipCond 400
+		Jump gPA.while
+	gPA.return, JumpI getPosAvail(pos_inicial;ptr_array_prioridad)
+	
+	/guardar valor
+	gPA.store_value, Load vP.result
+		StoreI gPA.temp_ptr
+		Load gPA.temp_ptr
+		Add +1
+		Store gPA.temp_ptr
+		Load gPA.len_array
+		Add +1
+		Store gPA.len_array
+		Jump gPA.incrementar
+		
+	// Variables
+	gPA.ctr, DEC 4
+	gPA.len_array, DEC 0
+	gPA.pos_inicial, DEC 0
+	gPA.ptr_array_prioridad, HEX 0
+	gPA.temp_ptr, HEX 0
+
+	// Trick to store the ptr position during runtime
+	gPA.result_array, JnS gPA.ptr_result_array
+		DEC 0
+		DEC 0
+		DEC 0
+		DEC 0
+	gPA.ptr_result_array, HEX 0
+		Jump gPA.main
+// -------------------- END - get_pos_avail() ------------------------
+
+//Funcion calcular aleatoriamente en las posiciones disponibles
+random(num_pos_avail), HEX 0
+	Load rnd.a
+	Store multiplicando
+	Load rnd.semilla
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add rnd.c
+	Store mod.dividend
+	Load rnd.m
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store rnd.semilla
+	Store mod.dividend
+	Load rnd.num_pos_avail
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store rnd.result
+	JumpI random(num_pos_avail)
+
+	/Variables
+	rnd.a, DEC 17
+	rnd.c, DEC 43
+	rnd.m, DEC 500
+	rnd.num_pos_avail, DEC -1
+	rnd.result, DEC -1
+	rnd.semilla, DEC 11
+/------------------Fin funcion calcular aleatoriamente en las posiciones disponibles -------------------------
+
+/Inicio funcion para multiplicar
+multiplicar, HEX 0
+	Clear
+	Store producto
+	Load multiplicador
+	SkipCond 400
+	Jump mult
+	JumpI multiplicar
+	mult, Load producto
+		Add multiplicando
+		Store producto
+		Load multiplicador
+		Subt +1
+		Store multiplicador
+		SkipCond 400
+		Jump mult
+		JumpI multiplicar
+		
+	/Variables locales
+	multiplicador, DEC 0
+	multiplicando, DEC 0
+	producto, DEC 0
+/-----------------Fin funcion para multiplicar-----------------------
+
+// Input
+// Store mod.dividend
+// Input
+// Store mod.divisor
+// JnS mod(dividend;divsor)
+// Output
+// Halt
+
+// Start - mod()
+// Calculates mod operation between dividend and divisor.
+mod(dividend;divsor), HEX 000
+	Clear
+	Store mod.result
+
+	mod.while, Load mod.dividend
+		Subt mod.divisor
+		SkipCond 000
+			Jump mod.while_cont
+		Jump mod.return
+		mod.while_cont, Store mod.dividend
+			Jump mod.while
+
+	mod.return, Load mod.dividend
+		Store mod.result
+		JumpI mod(dividend;divsor)
+
+mod.dividend, DEC 0
+mod.divisor, DEC 0
+mod.result, DEC 0
+// End - mod()
+
+/ main, Load currentPos
+/ Store vP.currentPos
+/ Add +16
+/ Store vP.posToCheck
+/ JnS validatePos(currentPos;posToCheck)
+/ Output
+/ Halt
+
+/ currentPos, HEX F60
+
+// Start - validatePos()
+// Reminder: It works with absolute positions, from F00 to FFF
+validatePos(currentPos;posToCheck), HEX 000
+	Clear
+	Store vP.result
+
+	vP.validateUp, Load vP.posToCheck
+        Subt OFFSET
+		SkipCond 000
+			Jump vP.validateDown
+		Load vP.currentPos
+		Add +240
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	vP.validateDown, Load DISPLAY_END
+		Subt vP.posToCheck
+		SkipCond 000
+			Jump vP.validateRigthColumn
+		Load vP.currentPos
+		Subt +240
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	vP.validateRigthColumn, Load vP.posToCheck
+		Subt OFFSET
+		Store mod.dividend
+		Load +16
+		Store mod.divisor
+		JnS mod(dividend;divsor)
+		SkipCond 400
+			Jump vP.validateLeftColumn
+		Load vP.currentPos
+		Subt vP.posToCheck
+		Add +1
+		SkipCond 400 // the difference should be by only 1
+			Jump vP.validateLeftColumn
+		Load vP.currentPos
+		Subt +15
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+		
+	vP.validateLeftColumn, Load vP.posToCheck
+		Subt OFFSET
+		Store mod.dividend
+		Load +16
+		Store mod.divisor
+		JnS mod(dividend;divsor)
+		Subt +15
+		SkipCond 400
+			Jump vP.validatePosToCheck
+		Load vP.posToCheck
+		Subt vP.currentPos
+		Add +1
+		SkipCond 400 // the difference should be by only 1
+			Jump vP.validatePosToCheck
+		Load vP.currentPos
+		Add +15
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	vP.validatePosToCheck, Load vP.posToCheck
+	Store isWall.posToCheck
+	JnS isWall(postToCheck)
+	SkipCond 400
+		Jump vP.wallDetected
+	Load vP.posToCheck
+	Jump vP.storeResult
+
+	vP.storeResult, Store vP.result
+		Jump vP.return
+	
+	vP.wallDetected, Load -1
+		Store vP.result
+		Jump vP.return
+
+	vP.return, JumpI validatePos(currentPos;posToCheck)
+	
+vP.currentPos, DEC 0
+vP.posToCheck, DEC 0
+vP.result, DEC 0
+// End - validatePos()
+
+// Start - isWall()
+// Return 1 if there is a wall and 0 if there is no wall.
+isWall(postToCheck), hex 000
+	Load -1
+	Store isWall.result
+
+	LoadI isWall.posToCheck
+	Subt PARED_COLOR
+	SkipCond 0C00
+		Jump isWall.wallDetected
+	Jump isWall.noWallDetected
+
+	isWall.wallDetected, Load +1
+		Store isWall.result
+		Jump isWall.return
+	
+	isWall.noWallDetected, Load ZERO
+		Store isWall.result
+
+	isWall.return, JumpI isWall(postToCheck)
+	
+isWall.posToCheck, DEC 0
+isWall.result, DEC -1
+
+// End - isWall()
+
+// Constants
+OFFSET, HEX F00
+DISPLAY_END, HEX FFF
+PARED_COLOR, HEX 421B
+ZERO, DEC 0
++1, DEC 1
+-1, DEC -1
++15, DEC 15
++16, DEC 16
++240, DEC 240
++255, DEC 255
+-16, DEC -16
++18, DEC 18
++31, DEC 31
+INKY_COLOR, HEX 3FB
+PAC-MAN_COLOR, HEX 7FE0

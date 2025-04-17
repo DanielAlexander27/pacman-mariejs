@@ -137,13 +137,13 @@ detectPacman(initialPos;ghostColor), HEX 000
 	dp.storeResult, Store dP.result
 	dP.return, JumpI detectPacman(initialPos;ghostColor)
 
-dP.temp, DEC 0
-dP.initialPos, DEC 0
-dP.prevPos, DEC 0
-dP.currentPos, DEC 0
-dP.ghostColor, DEC -1
-dP.addend, DEC -1
-dP.result, DEC 0
+	dP.temp, DEC 0
+	dP.initialPos, DEC 0
+	dP.prevPos, DEC 0
+	dP.currentPos, DEC 0
+	dP.ghostColor, DEC -1
+	dP.addend, DEC -1
+	dP.result, DEC 0
 // End - detectPacman()
 
 // Start - validatePos()

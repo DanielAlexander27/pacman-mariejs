@@ -37,11 +37,17 @@
 // tamaño de este
 
 getPosAvail(pos_inicial;ptr_array_prioridad), HEX 0
+	// Initializae ptr to point to result_array
 	Jump gPA.result_array
+	// Set initial value for temp_ptr
 	gPA.main, Load gPA.ptr_result_array
 	Store gPA.temp_ptr
+	// Set initial value for counter
 	LoadImmi 4
 	Store gPA.ctr
+	// Set initial value for len_array
+	Clear
+	Store gPA.len_array
 	
 	Load gPA.pos_inicial
 	Store vP.currentPos

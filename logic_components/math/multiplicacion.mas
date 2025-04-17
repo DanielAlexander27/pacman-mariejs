@@ -1,0 +1,23 @@
+/Inicio funcion para multiplicar
+multiplicar, HEX 0
+	Clear
+	Store producto
+	Load multiplicador
+	SkipCond 400
+	Jump mult
+	JumpI multiplicar
+	mult, Load producto
+		Add multiplicando
+		Store producto
+		Load multiplicador
+		Subt +1
+		Store multiplicador
+		SkipCond 400
+		Jump mult
+		JumpI multiplicar
+		
+	/Variables locales
+	multiplicador, DEC 0
+	multiplicando, DEC 0
+	producto, DEC 0
+/-----------------Fin funcion para multiplicar-----------------------

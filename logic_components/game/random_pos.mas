@@ -1,0 +1,31 @@
+//Funcion calcular aleatoriamente en las posiciones disponibles
+random(num_pos_avail), HEX 0
+	Load rnd.a
+	Store multiplicando
+	Load rnd.semilla
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add rnd.c
+	Store mod.dividend
+	Load rnd.m
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store rnd.semilla
+	Store mod.dividend
+	Load rnd.num_pos_avail
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store rnd.result
+	JumpI random(num_pos_avail)
+
+	/Variables
+	rnd.a, DEC 17
+	rnd.c, DEC 43
+	rnd.m, DEC 500
+	rnd.num_pos_avail, DEC -1
+	rnd.result, DEC -1
+	rnd.semilla, DEC 11
+/------------------Fin funcion calcular aleatoriamente en las posiciones disponibles -------------------------

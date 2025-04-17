@@ -1,15 +1,96 @@
-/ main, Load currentPos
-/ Store vP.currentPos
-/ Add +16
-/ Store vP.posToCheck
-/ JnS validatePos(currentPos;posToCheck)
-/ Output
-/ Halt
+/Jump main
 
-/ currentPos, HEX F60
+/PACMAN_POS, HEX FA5
+/WALL_POS1, HEX FF7
+/WALL_POS2, HEX FF8
+/WALL_POS3, HEX FF6
+/WALL_POS4, HEX FF4
+/
+/
+/main, Load PAC-MAN_COLOR
+/StoreI PACMAN_POS
+/Load PARED_COLOR
+/StoreI WALL_POS1
+/StoreI WALL_POS2
+/StoreI WALL_POS3
+/StoreI WALL_POS4
+/
+/Load PACMAN_POSITION_ARRAY_PTR
+/Store pD.ptr_array_prioridad
+/Load PACMAN_POS
+/Store pD.pos_inicial
+/JnS pos_disponible(pos_inicial;ptr_array_prioridad)
+/HALT
+/
+/PAC-MAN_COLOR, HEX 7FE0
+/PARED_COLOR, HEX 421B
+/
+/PACMAN_POSITION_ARRAY_PTR, HEX 16
+/PACMAN_POSITION_ARRAY, DEC 16
+/	DEC -16
+/	DEC -1
+/	DEC 1
+
+// -------------------- START - get_pos_avail() ------------------------
+// Funcion para obtener posiciones disponibles de una entidad
+// Devuelve el puntero del array con las posiciones disponibles y también el
+// tamaño de este
+
+getPosAvail(pos_inicial;ptr_array_prioridad), HEX 0
+	Jump gPA.result_array
+	gPA.main, Load gPA.ptr_result_array
+	Store gPA.temp_ptr
+	LoadImmi 4
+	Store gPA.ctr
+	
+	Load gPA.pos_inicial
+	Store vP.currentPos
+	
+	gPA.while, LoadI gPA.ptr_array_prioridad
+	Add gPA.pos_inicial
+	Store vP.posToCheck
+	JnS validatePos(currentPos;posToCheck)
+	SkipCond 000
+		Jump gPA.store_value
+	gPA.incrementar, Load gPA.ptr_array_prioridad
+	Add +1
+	Store gPA.ptr_array_prioridad
+	Load gPA.ctr
+	Subt +1
+	Store gPA.ctr
+	SkipCond 400
+		Jump gPA.while
+	gPA.return, JumpI getPosAvail(pos_inicial;ptr_array_prioridad)
+	
+	/guardar valor
+	gPA.store_value, Load vP.result
+		StoreI gPA.temp_ptr
+		Load gPA.temp_ptr
+		Add +1
+		Store gPA.temp_ptr
+		Load gPA.len_array
+		Add +1
+		Store gPA.len_array
+		Jump gPA.incrementar
+		
+	// Variables
+	gPA.ctr, DEC 4
+	gPA.len_array, DEC 0
+	gPA.pos_inicial, DEC 0
+	gPA.ptr_array_prioridad, HEX 0
+	gPA.temp_ptr, HEX 0
+
+	// Trick to store the ptr position during runtime
+	gPA.result_array, JnS gPA.ptr_result_array
+		DEC 0
+		DEC 0
+		DEC 0
+		DEC 0
+	gPA.ptr_result_array, HEX 0
+		Jump gPA.main
+// -------------------- END - get_pos_avail() ------------------------
 
 // Start - validatePos()
-// Reminder: It works with absolute positions, from F00 to FFF
 validatePos(currentPos;posToCheck), HEX 000
 	Clear
 	Store vP.result
@@ -155,6 +236,7 @@ mod.dividend, DEC 0
 mod.divisor, DEC 0
 mod.result, DEC 0
 // End - mod()
+
 
 // Constants
 OFFSET, HEX F00

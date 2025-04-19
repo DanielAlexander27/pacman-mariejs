@@ -1,17 +1,19 @@
 Jump main
 
-inky_pos, HEX FD3
-wallPos1, HEX FFA
-wallPos2, HEX F10
+inky_pos, HEX F23
+wallPos1, HEX F39
+wallPos2, HEX F1A
+wallPos3, HEX F03
 pacmanPos, HEX F3A
+/pacmanPos, HEX F63
 inky_direction, DEC 0
 inky_target, DEC -1
 
-PTR_INKY_PRIORIDAD_ARRAY, HEX 7
-INKY_PRIORIDAD_ARRAY, DEC 16
+PTR_INKY_PRIORIDAD_ARRAY, HEX 9
+INKY_PRIORIDAD_ARRAY, DEC 1
 	DEC -1
 	DEC -16
-	DEC 1
+	DEC 16
 
 main, Load PAC-MAN_COLOR
 StoreI pacmanPos
@@ -22,9 +24,9 @@ StoreI inky_pos
 Load PARED_COLOR
 StoreI wallPos1
 StoreI wallPos2
+StoreI wallPos3
 
-
-Load inky_direction
+while, Load inky_direction
 Store mG.ghost_direction
 Load inky_pos
 Store mG.ghost_pos
@@ -35,7 +37,7 @@ Store mG.ghost_target
 Load PTR_INKY_PRIORIDAD_ARRAY
 Store mG.ptr_array_prioridad
 
-while, JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
 	Load mG.positionToMove
 	Store inky_pos
 	Load mG.ghost_direction
@@ -69,20 +71,20 @@ moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad
 	mG.validateTarget, Load mG.ghost_target
 		SkipCond 000
 			Jump mG.targetReached
-		Jump mG.generateRandom
+		Jump mG.cleanValue
 
 		mG.targetReached, Load mG.ghost_pos
 			Subt mG.ghost_target
 			SkipCond 0C00
-				Jump mG.generateRandom
+				Jump mG.cleanValue
 			Jump mG.move_to_target
 
-	mG.generateRandom, LoadImmi -1
+	mG.cleanValue, Load -1
 		Store mG.ghost_target
 		LoadImmi 0
 		Store mG.ghost_direction
-		
-		Load mG.ghost_pos
+
+	mG.generateRandom, Load mG.ghost_pos
 		Store gPA.pos_inicial
 		Load mG.ptr_array_prioridad
 		Store gPA.ptr_array_prioridad
@@ -97,7 +99,14 @@ moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad
 		LoadI mG.temp_ptr // position of interest to move
 		Store mG.positionToMove
 
-	mG.movePos, Load mG.ghost_color
+	mG.movePos, Load mG.positionToMove
+		Store vP.posToCheck
+		Load mG.ghost_pos
+		Store vP.currentPos
+		JnS validatePos(currentPos;posToCheck)
+		Load vP.result // It always be != 0
+		Store mG.positionToMove
+		Load mG.ghost_color
 		StoreI mG.positionToMove
 		Clear
 		StoreI mG.ghost_pos
@@ -240,11 +249,17 @@ detectPacman(initialPos;ghostColor), HEX 000
 // tamaño de este
 
 getPosAvail(pos_inicial;ptr_array_prioridad), HEX 0
+	// Initializae ptr to point to result_array
 	Jump gPA.result_array
+	// Set initial value for temp_ptr
 	gPA.main, Load gPA.ptr_result_array
 	Store gPA.temp_ptr
+	// Set initial value for counter
 	LoadImmi 4
 	Store gPA.ctr
+	// Set initial value for len_array
+	Clear
+	Store gPA.len_array
 	
 	Load gPA.pos_inicial
 	Store vP.currentPos
@@ -322,14 +337,40 @@ random(num_pos_avail), HEX 0
 	rnd.m, DEC 500
 	rnd.num_pos_avail, DEC -1
 	rnd.result, DEC -1
-	rnd.semilla, DEC 11
+	rnd.semilla, DEC 103
 /------------------Fin funcion calcular aleatoriamente en las posiciones disponibles -------------------------
 
 /Inicio funcion para multiplicar
 multiplicar, HEX 0
 	Clear
 	Store producto
+	Store neg_flag
+	/Comprobar si un numero es negativo
+	Load multiplicando
+	SkipCond 000
+	Jump comprobar_multiplicador
+	Load neg_flag
+	Add +1
+	Store neg_flag
+	Load multiplicando
+	Store abs.num
+	JnS abs(num)
+	Load abs.num
+	Store multiplicando
+	
+	comprobar_multiplicador, Load multiplicador
+	SkipCond 000
+	Jump calc_mult
+	Load neg_flag
+	Add +1
+	Store neg_flag
 	Load multiplicador
+	Store abs.num
+	JnS abs(num)
+	Load abs.num
+	Store multiplicador
+
+	calc_mult, Load multiplicador
 	SkipCond 400
 	Jump mult
 	JumpI multiplicar
@@ -341,21 +382,41 @@ multiplicar, HEX 0
 		Store multiplicador
 		SkipCond 400
 		Jump mult
-		JumpI multiplicar
-		
+		Load neg_flag
+		Subt +1
+		SkipCond 400
+			JumpI multiplicar
+		Jump convertir_negativo
+
+	convertir_negativo, Load producto
+	Subt producto
+	Subt producto
+	Store producto
+	JumpI multiplicar
+	
 	/Variables locales
 	multiplicador, DEC 0
 	multiplicando, DEC 0
 	producto, DEC 0
+	neg_flag, DEC 0
 /-----------------Fin funcion para multiplicar-----------------------
 
-// Input
-// Store mod.dividend
-// Input
-// Store mod.divisor
-// JnS mod(dividend;divsor)
-// Output
-// Halt
+
+/Funcion para calcular el valor absoluto
+abs(num), HEX 0
+	Load abs.num
+	SkipCond 000
+	JumpI abs(num)
+	Load abs.num
+	Subt abs.num
+	Subt abs.num
+	Store abs.num
+	JumpI abs(num)
+	
+	/Variables
+	abs.num, DEC 0
+/-------------------FIn funcion calcular valor absoluto --------------------------
+
 
 // Start - mod()
 // Calculates mod operation between dividend and divisor.

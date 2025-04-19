@@ -1,0 +1,1881 @@
+Jump main
+
+OFFSET, HEX F00
+MAP_POSITION, HEX F00
+ONE, DEC 1
+PARED_COLOR, HEX 421B
+
+ESTEROIDE_COLOR, HEX 7E60
+BOLITA_COLOR, HEX 7FFF
+
+pinky_pos, HEX F77
+pinky_direction, DEC 0
+pinky_target, DEC -1
+PINKY_COLOR, HEX 7EFB
+
+PTR_PINKY_PRIORIDAD_ARRAY, HEX 00C
+PINKY_PRIORIDAD_ARRAY, DEC 1
+	DEC -1
+	DEC -16
+	DEC 16
+
+inky_pos, HEX F78
+inky_direction, DEC 0
+inky_target, DEC -1
+INKY_COLOR, HEX 3FB
+
+PTR_INKY_PRIORIDAD_ARRAY, HEX 015
+INKY_PRIORIDAD_ARRAY, DEC 1
+	DEC -1
+	DEC -16
+	DEC 16
+
+clyde_pos, HEX F87
+clyde_direction, DEC 0
+clyde_target, DEC -1
+CLYDE_COLOR, HEX 7EF1
+
+PTR_CLYDE_PRIORIDAD_ARRAY, HEX 01E
+CLYDE_PRIORIDAD_ARRAY, DEC 1
+	DEC -1
+	DEC -16
+	DEC 16
+
+blinky_pos, HEX F88
+blinky_direction, DEC 0
+blinky_target, DEC -1
+BLINKY_COLOR, HEX 7C00
+
+PTR_BLYINKY_PRIORIDAD_ARRAY, HEX 027
+BLYINKY_PRIORIDAD_ARRAY, DEC 1
+	DEC -1
+	DEC -16
+	DEC 16
+
+pac-manRow, DEC 12
+pac-manColumn, DEC 5
+pacmanPos, HEX FC5
+PAC-MAN_COLOR, HEX 7FE0
+
+tiempo, DEC 0
+
+main, JnS loadMap()
+move, JnS moveEntities()
+Jump move
+
+moveEntities(), HEX 0
+	JnS movePacman()
+
+	Load inky_direction
+	Store mG.ghost_direction
+	Load inky_pos
+	Store mG.ghost_pos
+	Load INKY_COLOR
+	Store mG.ghost_color
+	Load inky_target
+	Store mG.ghost_target
+	Load PTR_INKY_PRIORIDAD_ARRAY
+	Store mG.ptr_array_prioridad
+
+	JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+		Load mG.positionToMove
+		Store inky_pos
+		Load mG.ghost_direction
+		Store inky_direction
+		Load mG.ghost_target
+		Store inky_target
+
+	Load pinky_direction
+	Store mG.ghost_direction
+	Load pinky_pos
+	Store mG.ghost_pos
+	Load PINKY_COLOR
+	Store mG.ghost_color
+	Load pinky_target
+	Store mG.ghost_target
+	Load PTR_PINKY_PRIORIDAD_ARRAY
+	Store mG.ptr_array_prioridad
+
+	JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+		Load mG.positionToMove
+		Store pinky_pos
+		Load mG.ghost_direction
+		Store pinky_direction
+		Load mG.ghost_target
+		Store pinky_target
+
+	Load clyde_direction
+	Store mG.ghost_direction
+	Load clyde_pos
+	Store mG.ghost_pos
+	Load CLYDE_COLOR
+	Store mG.ghost_color
+	Load clyde_target
+	Store mG.ghost_target
+	Load PTR_CLYDE_PRIORIDAD_ARRAY
+	Store mG.ptr_array_prioridad
+
+	JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+		Load mG.positionToMove
+		Store clyde_pos
+		Load mG.ghost_direction
+		Store clyde_direction
+		Load mG.ghost_target
+		Store clyde_target
+
+	Load blinky_direction
+	Store mG.ghost_direction
+	Load blinky_pos
+	Store mG.ghost_pos
+	Load BLINKY_COLOR
+	Store mG.ghost_color
+	Load blinky_target
+	Store mG.ghost_target
+	Load PTR_BLYINKY_PRIORIDAD_ARRAY
+	Store mG.ptr_array_prioridad
+
+	JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+		Load mG.positionToMove
+		Store blinky_pos
+		Load mG.ghost_direction
+		Store blinky_direction
+		Load mG.ghost_target
+		Store blinky_target
+
+	JumpI moveEntities()
+
+movePacman(), HEX 000
+	Load pacmanPos
+	Store mpb.pacman_ubi_ptr
+	JnS movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad)
+	Load mpb.pacman_next_ubi_ptr
+	SkipCond 000
+		Jump mover_pacman
+	Load gdp.ptr_array_direcciones
+	Store mpr.ptr_array_prioridad
+	Load pacmanPos
+	Store mpr.pacman_ubi_ptr
+	JnS movimiento_pacman_rand(pos_pacman)
+	Clear
+	StoreI mpr.pacman_ubi_ptr
+	Load PAC-MAN_COLOR
+	StoreI mpr.pacman_next_ubi_ptr
+	Load mpr.pacman_next_ubi_ptr
+	Store pacmanPos
+	Load tiempo
+	Add +1
+	Store tiempo
+	JumpI movePacman()
+		
+	mover_pacman, Clear
+	StoreI mpb.pacman_ubi_ptr
+	Load PAC-MAN_COLOR
+	StoreI mpb.pacman_next_ubi_ptr
+	Load mpb.pacman_next_ubi_ptr
+	Store pacmanPos
+	Load tiempo
+	Add +1
+	Store tiempo
+	JumpI movePacman()
+
+moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad), Hex 0
+	Load mG.ghost_pos
+	Store dP.initialPos
+	Load mG.ghost_color
+	Store dP.ghostColor
+
+	JnS detectPacman(initialPos;ghostColor)
+	Load dP.result
+	SkipCond 0C00
+		Jump mG.validateTarget
+	Store mG.ghost_direction
+	Load pacmanPos
+	Store mG.ghost_target
+	
+	mG.move_to_target, Load mG.ghost_pos
+		Add mG.ghost_direction
+		Store mG.positionToMove
+		Jump mG.movePos
+
+	mG.validateTarget, Load mG.ghost_target
+		SkipCond 000
+			Jump mG.targetReached
+		Jump mG.cleanValue
+
+		mG.targetReached, Load mG.ghost_pos
+			Subt mG.ghost_target
+			SkipCond 0C00
+				Jump mG.cleanValue
+			Jump mG.move_to_target
+
+	mG.cleanValue, Load -1
+		Store mG.ghost_target
+		LoadImmi 0
+		Store mG.ghost_direction
+
+	mG.generateRandom, Load mG.ghost_pos
+		Store gPA.pos_inicial
+		Load mG.ptr_array_prioridad
+		Store gPA.ptr_array_prioridad
+		Jns getPosAvail(pos_inicial;ptr_array_prioridad)
+		Load gPA.len_array
+		Store rnd.num_pos_avail
+		JnS random(num_pos_avail)
+
+		Load gPA.ptr_result_array
+		Add rnd.result
+		Store mG.temp_ptr
+		LoadI mG.temp_ptr // position of interest to move
+		Store mG.positionToMove
+
+	mG.movePos, Load mG.positionToMove
+		Store vP.posToCheck
+		Load mG.ghost_pos
+		Store vP.currentPos
+		JnS validatePos(currentPos;posToCheck)
+		Load vP.result // It always be != 0
+		Store mG.positionToMove
+		Load mG.ghost_color
+		StoreI mG.positionToMove
+		Clear
+		StoreI mG.ghost_pos
+		
+	mG.return, JumpI moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+
+	mG.ghost_direction, DEC 0
+	mG.positionToMove, DEC 0
+	mG.temp_ptr, DEC 0
+	mG.ghost_pos, Dec 0
+	mG.ghost_color, DEC 0
+	mG.ptr_array_prioridad, DEC 0
+	mG.ghost_target, DEC -1
+
+// Start - detectPacman()
+// It returns the orientation where the ghost should go (up, down, left or right)
+// by returning -16, +16, -1 or +1, respectively. It returns 0 if pacman is not detected.
+detectPacman(initialPos;ghostColor), HEX 000
+	Clear
+	Store dP.result
+
+	// Check if pacman and ghost are in the same column
+	Load +16
+	Store mod.divisor
+	Load pacmanPos
+	Store mod.dividend
+	Jns mod(dividend;divsor)
+	Load mod.result
+	Store dP.temp
+
+	Load dP.initialPos
+	Store mod.dividend
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Subt dP.temp
+	SkipCond 0C00
+		Jump dP.validateUp
+	// Check if pacman and ghost are in the same row
+	Load pacmanPos
+	Subt dP.initialPos
+	Add +15
+	
+	SkipCond 0C00 
+		Jump dP.validateRight
+	SkipCond 800
+		Jump dP.return
+	Subt +31
+	SkipCond 000
+		Jump dP.return
+	Jump dP.validateRight
+
+	// Loop to go tho the right
+	dP.validateRight, Load dP.initialPos
+	Store dP.prevPos
+	Add +1
+	Store dP.currentPos
+	Load +1
+	Store dP.addend
+	JnS dP.while
+	
+	// Loop to go to the left
+	dP.validateLeft, Load dP.initialPos
+	Store dP.prevPos
+	Subt +1
+	Store dP.currentPos
+	Load -1
+	Store dP.addend
+	JnS dP.while
+	
+	Jump dP.return
+
+	// Loop to go up
+	dP.validateUp, Load dP.initialPos
+	Store dP.prevPos
+	Subt +16
+	Store dP.currentPos
+	Load -16
+	Store dP.addend
+	JnS dP.while
+
+	// Loop to go down
+	dp.validateDown, Load dP.initialPos
+	Store dP.prevPos
+	Add +16
+	Store dP.currentPos
+	Load +16
+	Store dP.addend
+	JnS dP.while
+	Jump dP.return
+
+	dP.while, HEX 000
+		dP.startWhile, Load dP.prevPos
+		Store vP.currentPos
+		Load dP.currentPos
+		Store vP.posToCheck
+
+		JnS validatePos(currentPos;posToCheck)
+		Load vP.result
+		Store dP.currentPos
+		SkipCond 000
+			Jump dP.checkGhost
+		Jump dp.exitWhile
+
+		dP.checkGhost, LoadI vP.result
+			Subt dP.ghostColor
+			SkipCond 0C00
+				Jump dp.exitWhile
+		// check pac-man
+		LoadI vP.result
+		Subt PAC-MAN_COLOR
+		SkipCond 400
+			Jump dp.continueWhile
+		Load dP.addend
+		Jump dp.storeResult
+		
+		dp.continueWhile, Load dP.currentPos
+			Store dP.prevPos
+			Add dP.addend
+			Store dP.currentPos
+			Jump dP.startWhile
+		
+		dp.exitWhile, JumpI dP.while	
+
+	dp.storeResult, Store dP.result
+	dP.return, JumpI detectPacman(initialPos;ghostColor)
+
+	dP.temp, DEC 0
+	dP.initialPos, DEC 0
+	dP.prevPos, DEC 0
+	dP.currentPos, DEC 0
+	dP.ghostColor, DEC -1
+	dP.addend, DEC -1
+	dP.result, DEC 0
+// End - detectPacman()
+
+
+// -------------------- START - get_pos_avail() ------------------------
+// Funcion para obtener posiciones disponibles de una entidad
+// Devuelve el puntero del array con las posiciones disponibles y también el
+// tamaño de este
+
+getPosAvail(pos_inicial;ptr_array_prioridad), HEX 0
+	// Initializae ptr to point to result_array
+	Jump gPA.result_array
+	// Set initial value for temp_ptr
+	gPA.main, Load gPA.ptr_result_array
+	Store gPA.temp_ptr
+	// Set initial value for counter
+	LoadImmi 4
+	Store gPA.ctr
+	// Set initial value for len_array
+	Clear
+	Store gPA.len_array
+	
+	Load gPA.pos_inicial
+	Store vP.currentPos
+	
+	gPA.while, LoadI gPA.ptr_array_prioridad
+	Add gPA.pos_inicial
+	Store vP.posToCheck
+	JnS validatePos(currentPos;posToCheck)
+	SkipCond 000
+		Jump gPA.store_value
+	gPA.incrementar, Load gPA.ptr_array_prioridad
+	Add +1
+	Store gPA.ptr_array_prioridad
+	Load gPA.ctr
+	Subt +1
+	Store gPA.ctr
+	SkipCond 400
+		Jump gPA.while
+	gPA.return, JumpI getPosAvail(pos_inicial;ptr_array_prioridad)
+	
+	/guardar valor
+	gPA.store_value, Load vP.result
+		StoreI gPA.temp_ptr
+		Load gPA.temp_ptr
+		Add +1
+		Store gPA.temp_ptr
+		Load gPA.len_array
+		Add +1
+		Store gPA.len_array
+		Jump gPA.incrementar
+		
+	// Variables
+	gPA.ctr, DEC 4
+	gPA.len_array, DEC 0
+	gPA.pos_inicial, DEC 0
+	gPA.ptr_array_prioridad, HEX 0
+	gPA.temp_ptr, HEX 0
+
+	// Trick to store the ptr position during runtime
+	gPA.result_array, JnS gPA.ptr_result_array
+		DEC 0
+		DEC 0
+		DEC 0
+		DEC 0
+	gPA.ptr_result_array, HEX 0
+		Jump gPA.main
+// -------------------- END - get_pos_avail() ------------------------
+
+//Funcion calcular aleatoriamente en las posiciones disponibles
+random(num_pos_avail), HEX 0
+	Load rnd.a
+	Store multiplicando
+	Load rnd.semilla
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add rnd.c
+	Store mod.dividend
+	Load rnd.m
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store rnd.semilla
+	Store mod.dividend
+	Load rnd.num_pos_avail
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store rnd.result
+	JumpI random(num_pos_avail)
+
+	/Variables
+	rnd.a, DEC 17
+	rnd.c, DEC 43
+	rnd.m, DEC 500
+	rnd.num_pos_avail, DEC -1
+	rnd.result, DEC -1
+	rnd.semilla, DEC 103
+/------------------Fin funcion calcular aleatoriamente en las posiciones disponibles -------------------------
+
+/Inicio funcion para multiplicar
+multiplicar, HEX 0
+	Clear
+	Store producto
+	Load multiplicador
+	SkipCond 400
+	Jump mult
+	JumpI multiplicar
+	mult, Load producto
+		Add multiplicando
+		Store producto
+		Load multiplicador
+		Subt +1
+		Store multiplicador
+		SkipCond 400
+		Jump mult
+		JumpI multiplicar
+		
+	/Variables locales
+	multiplicador, DEC 0
+	multiplicando, DEC 0
+	producto, DEC 0
+/-----------------Fin funcion para multiplicar-----------------------
+
+// Input
+// Store mod.dividend
+// Input
+// Store mod.divisor
+// JnS mod(dividend;divsor)
+// Output
+// Halt
+
+// Start - mod()
+// Calculates mod operation between dividend and divisor.
+mod(dividend;divsor), HEX 000
+	Clear
+	Store mod.result
+
+	mod.while, Load mod.dividend
+		Subt mod.divisor
+		SkipCond 000
+			Jump mod.while_cont
+		Jump mod.return
+		mod.while_cont, Store mod.dividend
+			Jump mod.while
+
+	mod.return, Load mod.dividend
+		Store mod.result
+		JumpI mod(dividend;divsor)
+
+mod.dividend, DEC 0
+mod.divisor, DEC 0
+mod.result, DEC 0
+// End - mod()
+
+/ main, Load currentPos
+/ Store vP.currentPos
+/ Add +16
+/ Store vP.posToCheck
+/ JnS validatePos(currentPos;posToCheck)
+/ Output
+/ Halt
+
+/ currentPos, HEX F60
+
+// Start - validatePos()
+// Reminder: It works with absolute positions, from F00 to FFF
+validatePos(currentPos;posToCheck), HEX 000
+	Clear
+	Store vP.result
+
+	vP.validateUp, Load vP.posToCheck
+        Subt OFFSET
+		SkipCond 000
+			Jump vP.validateDown
+		Load vP.currentPos
+		Add +240
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	vP.validateDown, Load DISPLAY_END
+		Subt vP.posToCheck
+		SkipCond 000
+			Jump vP.validateRigthColumn
+		Load vP.currentPos
+		Subt +240
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	vP.validateRigthColumn, Load vP.posToCheck
+		Subt OFFSET
+		Store mod.dividend
+		Load +16
+		Store mod.divisor
+		JnS mod(dividend;divsor)
+		SkipCond 400
+			Jump vP.validateLeftColumn
+		Load vP.currentPos
+		Subt vP.posToCheck
+		Add +1
+		SkipCond 400 // the difference should be by only 1
+			Jump vP.validateLeftColumn
+		Load vP.currentPos
+		Subt +15
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+		
+	vP.validateLeftColumn, Load vP.posToCheck
+		Subt OFFSET
+		Store mod.dividend
+		Load +16
+		Store mod.divisor
+		JnS mod(dividend;divsor)
+		Subt +15
+		SkipCond 400
+			Jump vP.validatePosToCheck
+		Load vP.posToCheck
+		Subt vP.currentPos
+		Add +1
+		SkipCond 400 // the difference should be by only 1
+			Jump vP.validatePosToCheck
+		Load vP.currentPos
+		Add +15
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	vP.validatePosToCheck, Load vP.posToCheck
+	Store isWall.posToCheck
+	JnS isWall(postToCheck)
+	SkipCond 400
+		Jump vP.wallDetected
+	Load vP.posToCheck
+	Jump vP.storeResult
+
+	vP.storeResult, Store vP.result
+		Jump vP.return
+	
+	vP.wallDetected, Load -1
+		Store vP.result
+		Jump vP.return
+
+	vP.return, JumpI validatePos(currentPos;posToCheck)
+	
+vP.currentPos, DEC 0
+vP.posToCheck, DEC 0
+vP.result, DEC 0
+// End - validatePos()
+
+// Start - isWall()
+// Return 1 if there is a wall and 0 if there is no wall.
+isWall(postToCheck), hex 000
+	Load -1
+	Store isWall.result
+
+	LoadI isWall.posToCheck
+	Subt PARED_COLOR
+	SkipCond 0C00
+		Jump isWall.wallDetected
+	Jump isWall.noWallDetected
+
+	isWall.wallDetected, Load +1
+		Store isWall.result
+		Jump isWall.return
+	
+	isWall.noWallDetected, Load ZERO
+		Store isWall.result
+
+	isWall.return, JumpI isWall(postToCheck)
+	
+isWall.posToCheck, DEC 0
+isWall.result, DEC -1
+
+// End - isWall()
+
+
+/Inicio funcion generar direcciones aleatorias que serviran para toda la partida
+generar_direcciones(semilla), HEX 0
+	Jump gd.array_direcciones
+	gd.main, Load gd.ptr_array_direcciones
+	Store gd.temp_ptr
+	Load gd.semilla
+	Store gd.semilla_base
+	LoadImmi 4
+	Store gd.ctr_generador
+	
+	gd.inicio_ciclo_LCG, Load gd.ctr_generador
+	Subt +1
+	Store gd.ctr_generador
+	SkipCond 000
+	Jump gd.calculo_numero_aleatorio
+	JumpI generar_direcciones(semilla)
+	gd.calculo_numero_aleatorio, Load gd.a
+	Store multiplicando
+	Load gd.semilla_base
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add gd.c
+	Store mod.dividend
+	Load gd.m
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store gd.semilla_base
+	/De acuerdo al numero se asigna las direcciones por convencion
+	Load gd.semilla_base
+	SkipCond 400
+		Jump gd.verificar_izquierda
+	Load -16
+	Store gd.direccion
+	Jump gd.store_value
+
+	gd.verificar_izquierda, Load gd.semilla_base
+	Subt +1
+	SkipCond 400
+		Jump gd.verificar_abajo
+	Load -1
+	Store gd.direccion
+	Jump gd.store_value
+
+	gd.verificar_abajo, Load gd.semilla_base
+	Subt +1
+	Subt +1
+	SkipCond 400
+		Jump gd.asignar_derecha
+	Load +16
+	Store gd.direccion
+	Jump gd.store_value
+
+	gd.asignar_derecha, Load +1
+	Store gd.direccion
+	Jump gd.store_value
+	
+	gd.store_value, Load gd.direccion
+	StoreI gd.temp_ptr
+	Load gd.temp_ptr
+	Add +1
+	Store gd.temp_ptr
+	Jump gd.inicio_ciclo_LCG
+	
+	/Variables locales
+	gd.a, DEC 17
+	gd.c, DEC 43
+	gd.m, DEC 4
+	gd.direccion, DEC 0
+	gd.semilla_base, DEC 3
+	gd.semilla, DEC 0
+	gd.ctr_generador, DEC 4
+	gd.temp_ptr, HEX 0
+	gd.array_direcciones, JnS gd.ptr_array_direcciones
+		DEC 0
+		DEC 0
+		DEC 0
+		DEC 0
+	gd.ptr_array_direcciones, HEX 0
+	Jump gd.main
+/------------------------Fin funcion generar direcciones aleatorias que serviran para toda la partida-----------------
+
+//Funcion mover pacman aleatoriamente
+movimiento_pacman_rand(pos_pacman), HEX 0
+	Load mpr.pacman_ubi_ptr
+	Store gPA.pos_inicial
+	Subt OFFSET
+	Add gd.semilla_base
+	Store gd.semilla
+	JnS generar_direcciones(semilla)
+	Load gdp.ptr_array_direcciones
+	Store gPA.ptr_array_prioridad
+	JnS getPosAvail(pos_inicial;ptr_array_prioridad)
+	Load gPA.len_array
+	Store rnd.num_pos_avail
+	JnS random(num_pos_avail)
+
+	/Se selecciona una direccion aleatoria
+	Load gPA.ptr_result_array
+	Add rnd.result
+	Store mpr.temp_array
+
+	LoadI mpr.temp_array
+	Store mpr.pacman_next_ubi_ptr
+	mpr.return, JumpI movimiento_pacman_rand(pos_pacman)
+
+	/Variables
+	mpr.pacman_ubi_ptr, HEX 0
+	mpr.pacman_next_ubi_ptr, HEX 0
+	mpr.ptr_array_prioridad, HEX 0
+	mpr.temp_array, HEX 0
+/--------------------------Fin funcion mover pacman aleatoriamente
+
+//Funcion mover pacman en base a las bolitas
+movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad), HEX 0	
+	Load mpb.pacman_ubi_ptr
+	Store vP.currentPos
+	Load +1
+	Store mpb.radio
+	LoadImmi 4
+	Store mpb.ctr
+	
+	mpb.while, LoadI mpb.ptr_array_prioridad
+	Store multiplicando
+	Load mpb.radio
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add mpb.pacman_ubi_ptr
+	Store vP.posToCheck
+	Subt DISPLAY_END
+	SkipCond 800
+		Jump mpb.cont
+	Jump mpb.incrementar
+	mpb.cont, JnS validatePos(currentPos;posToCheck)
+	SkipCond 000
+		Jump mpb.check_la_nada
+	mpb.incrementar, Load mpb.ptr_array_prioridad
+	Add +1
+	Store mpb.ptr_array_prioridad
+	Load mpb.ctr
+	Subt +1
+	Store mpb.ctr
+	SkipCond 400
+		Jump mpb.while
+	LoadImmi 3
+	Subt mpb.radio
+	SkipCond 400
+		Jump mpb.incrementar_radio
+	Load -1
+	Store mpb.pacman_next_ubi_ptr
+	Jump mpb.return
+
+	mpb.check_la_nada, LoadI vP.result
+	SkipCond 400
+		Jump mpb.store_value
+	Jump mpb.incrementar
+
+	mpb.incrementar_radio, Load mpb.radio
+	Add +1
+	Store mpb.radio
+	LoadImmi 4
+	Store mpb.ctr
+	Load mpb.ptr_array_prioridad
+	Subt mpb.ctr
+	Store mpb.ptr_array_prioridad
+	Jump mpb.while
+	
+	/guardar valor
+	mpb.store_value, LoadI mpb.ptr_array_prioridad
+		Add mpb.pacman_ubi_ptr
+		Store vP.posToCheck
+		JnS validatePos(currentPos;posToCheck)
+		Load vP.result
+		SkipCond 800
+			Jump mpb.incrementar
+		Store mpb.pacman_next_ubi_ptr
+		mpb.return, JumpI movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad)
+		
+	/Variables
+	mpb.ctr, DEC 4
+	mpb.radio, DEC 1
+	mpb.pacman_ubi_ptr, HEX 0
+	mpb.pacman_next_ubi_ptr, DEC -1
+	mpb.ptr_array_prioridad, HEX 0
+//--------------------Fin funcion mover pacman por bolitas------------------------
+
+/Inicio funcion generar direcciones aleatorias que serviran para toda la partida
+generar_direcciones_partida, HEX 0
+	Jump gdp.array_direcciones
+	gdp.main, Load gdp.ptr_array_direcciones
+	Store gdp.temp_ptr
+	inicio_ciclo_LCG, Load gdp.ctr_generador
+	Subt +1
+	Store gdp.ctr_generador
+	SkipCond 000
+	Jump calculo_numero_aleatorio
+	JumpI generar_direcciones_partida
+	calculo_numero_aleatorio, Load gdp.a
+	Store multiplicando
+	Load gdp.semilla
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add gdp.c
+	Store mod.dividend
+	Load gdp.m
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store gdp.semilla
+	/De acuerdo al numero se asigna las direcciones por convencion
+	Load gdp.semilla
+	SkipCond 400
+		Jump gdp.verificar_izquierda
+	Load -16
+	Store gdp.direccion
+	Jump gdp.store_value
+
+	gdp.verificar_izquierda, Load gdp.semilla
+	Subt +1
+	SkipCond 400
+		Jump gdp.verificar_abajo
+	Load -1
+	Store gdp.direccion
+	Jump gdp.store_value
+
+	gdp.verificar_abajo, Load gdp.semilla
+	Subt +1
+	Subt +1
+	SkipCond 400
+		Jump gdp.asignar_derecha
+	Load +16
+	Store gdp.direccion
+	Jump gdp.store_value
+
+	gdp.asignar_derecha, Load +1
+	Store gdp.direccion
+	Jump gdp.store_value
+	
+	gdp.store_value, Load gdp.direccion
+	StoreI gdp.temp_ptr
+	Load gdp.temp_ptr
+	Add +1
+	Store gdp.temp_ptr
+	Jump inicio_ciclo_LCG
+	
+	/Variables locales
+	gdp.a, DEC 17
+	gdp.c, DEC 43
+	gdp.m, DEC 4
+	gdp.direccion, DEC 0
+	gdp.semilla, DEC 9
+	gdp.ctr_generador, DEC 4
+	gdp.temp_ptr, HEX 0
+	gdp.array_direcciones, JnS gdp.ptr_array_direcciones
+		DEC 0
+		DEC 0
+		DEC 0
+		DEC 0
+	gdp.ptr_array_direcciones, HEX 0
+	Jump gdp.main
+/------------------------Fin funcion generar direcciones aleatorias que serviran para toda la partida-----------------
+
+
+// Constants
+DISPLAY_END, HEX FFF
+ZERO, DEC 0
++1, DEC 1
+-1, DEC -1
++15, DEC 15
++16, DEC 16
++240, DEC 240
++255, DEC 255
+-16, DEC -16
++18, DEC 18
++31, DEC 31
+
+// MAP GENERATION
+
+loadMap(), HEX 0
+LOAD OFFSET
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD ESTEROIDE_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD ESTEROIDE_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PINKY_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD INKY_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD CLYDE_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BLINKY_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PAC-MAN_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD ESTEROIDE_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD BOLITA_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+ADD ONE
+STORE MAP_POSITION
+LOAD ESTEROIDE_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+STORE MAP_POSITION
+LOAD PARED_COLOR
+STOREI MAP_POSITION
+LOAD MAP_POSITION
+ADD ONE
+
+// END MAP GENERATION
+
+JumpI loadMap()

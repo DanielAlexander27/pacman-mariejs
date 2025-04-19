@@ -1,0 +1,78 @@
+/Inicio funcion generar direcciones aleatorias que serviran para toda la partida
+generar_direcciones_partida, HEX 0
+	// Inicialización de variables
+	Jump gdp.array_direcciones
+
+	// Inicio de función
+	gdp.main, Load gdp.ptr_array_direcciones
+	Store gdp.temp_ptr
+	inicio_ciclo_LCG, Load gdp.ctr_generador
+	Subt +1
+	Store gdp.ctr_generador
+	SkipCond 000
+	Jump calculo_numero_aleatorio
+	JumpI generar_direcciones_partida
+	calculo_numero_aleatorio, Load gdp.a
+	Store multiplicando
+	Load gdp.semilla
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add gdp.c
+	Store mod.dividend
+	Load gdp.m
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store gdp.semilla
+	/De acuerdo al numero se asigna las direcciones por convencion
+	Load gdp.semilla
+	SkipCond 400
+		Jump gdp.verificar_izquierda
+	Load -16
+	Store gdp.direccion
+	Jump gdp.store_value
+
+	gdp.verificar_izquierda, Load gdp.semilla
+	Subt +1
+	SkipCond 400
+		Jump gdp.verificar_abajo
+	Load -1
+	Store gdp.direccion
+	Jump gdp.store_value
+
+	gdp.verificar_abajo, Load gdp.semilla
+	Subt +1
+	Subt +1
+	SkipCond 400
+		Jump gdp.asignar_derecha
+	Load +16
+	Store gdp.direccion
+	Jump gdp.store_value
+
+	gdp.asignar_derecha, Load +1
+	Store gdp.direccion
+	Jump gdp.store_value
+	
+	gdp.store_value, Load gdp.direccion
+	StoreI gdp.temp_ptr
+	Load gdp.temp_ptr
+	Add +1
+	Store gdp.temp_ptr
+	Jump inicio_ciclo_LCG
+	
+	/Variables locales
+	gdp.a, DEC 17
+	gdp.c, DEC 43
+	gdp.m, DEC 4
+	gdp.direccion, DEC 0
+	gdp.semilla, DEC 9
+	gdp.ctr_generador, DEC 4
+	gdp.temp_ptr, HEX 0
+	gdp.array_direcciones, JnS gdp.ptr_array_direcciones
+		DEC 0
+		DEC 0
+		DEC 0
+		DEC 0
+	gdp.ptr_array_direcciones, HEX 0
+		Jump gdp.main

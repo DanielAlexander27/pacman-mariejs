@@ -1,0 +1,925 @@
+ORG 100
+
+/main
+JnS inicializar_mapa
+JnS generar_direcciones_partida
+for, Load for_var
+	Subt +1
+	Store for_var
+	SkipCond 800
+	Halt
+	Load gdp.ptr_array_direcciones
+	Store mpb.ptr_array_prioridad
+	Load pacman_ptr
+	Store mpb.pacman_ubi_ptr
+	JnS movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad)
+	Load mpb.pacman_next_ubi_ptr
+	SkipCond 000
+		Jump mover_pacman
+	Load gdp.ptr_array_direcciones
+	Store mpr.ptr_array_prioridad
+	Load pacman_ptr
+	Store mpr.pacman_ubi_ptr
+	JnS movimiento_pacman_rand(pos_pacman)
+	Clear
+	StoreI mpr.pacman_ubi_ptr
+	Load color_pacman
+	StoreI mpr.pacman_next_ubi_ptr
+	Load mpr.pacman_next_ubi_ptr
+	Store pacman_ptr
+	Load tiempo
+	Add +1
+	Store tiempo
+	Jump for
+		
+	mover_pacman, Clear
+	StoreI mpb.pacman_ubi_ptr
+	Load color_pacman
+	StoreI mpb.pacman_next_ubi_ptr
+	Load mpb.pacman_next_ubi_ptr
+	Store pacman_ptr
+	Load tiempo
+	Add +1
+	Store tiempo
+	Jump for
+
+/Inicializar el mapa
+inicializar_mapa, HEX 0
+	for_mapa, LoadI ptr
+	SkipCond 400
+	Jump cont_for
+	JumpI inicializar_mapa
+	cont_for, LoadI ptr
+	StoreI display_ptr
+	Subt color_pacman
+	SkipCond 400
+	Jump cont_mapa
+	Load display_ptr
+	Store pacman_ptr
+	cont_mapa, Load ptr
+	Add +1
+	Store ptr
+	Load display_ptr
+	Add +1
+	Store display_ptr
+	Jump for_mapa
+	
+
+/Inicio funcion generar direcciones aleatorias que serviran para toda la partida
+generar_direcciones_partida, HEX 0
+	Jump gdp.array_direcciones
+	gdp.main, Load gdp.ptr_array_direcciones
+	Store gdp.temp_ptr
+	inicio_ciclo_LCG, Load gdp.ctr_generador
+	Subt +1
+	Store gdp.ctr_generador
+	SkipCond 000
+	Jump calculo_numero_aleatorio
+	JumpI generar_direcciones_partida
+	calculo_numero_aleatorio, Load gdp.a
+	Store multiplicando
+	Load gdp.semilla
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add gdp.c
+	Store mod.dividend
+	Load gdp.m
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store gdp.semilla
+	/De acuerdo al numero se asigna las direcciones por convencion
+	Load gdp.semilla
+	SkipCond 400
+		Jump gdp.verificar_izquierda
+	Load -16
+	Store gdp.direccion
+	Jump gdp.store_value
+
+	gdp.verificar_izquierda, Load gdp.semilla
+	Subt +1
+	SkipCond 400
+		Jump gdp.verificar_abajo
+	Load -1
+	Store gdp.direccion
+	Jump gdp.store_value
+
+	gdp.verificar_abajo, Load gdp.semilla
+	Subt +1
+	Subt +1
+	SkipCond 400
+		Jump gdp.asignar_derecha
+	Load +16
+	Store gdp.direccion
+	Jump gdp.store_value
+
+	gdp.asignar_derecha, Load +1
+	Store gdp.direccion
+	Jump gdp.store_value
+	
+	gdp.store_value, Load gdp.direccion
+	StoreI gdp.temp_ptr
+	Load gdp.temp_ptr
+	Add +1
+	Store gdp.temp_ptr
+	Jump inicio_ciclo_LCG
+	
+	/Variables locales
+	gdp.a, DEC 17
+	gdp.c, DEC 43
+	gdp.m, DEC 4
+	gdp.direccion, DEC 0
+	gdp.semilla, DEC 9
+	gdp.ctr_generador, DEC 4
+	gdp.temp_ptr, HEX 0
+	gdp.array_direcciones, JnS gdp.ptr_array_direcciones
+		DEC 0
+		DEC 0
+		DEC 0
+		DEC 0
+	gdp.ptr_array_direcciones, HEX 0
+	Jump gdp.main
+/------------------------Fin funcion generar direcciones aleatorias que serviran para toda la partida-----------------
+
+/Inicio funcion generar direcciones aleatorias que serviran para toda la partida
+generar_direcciones(semilla), HEX 0
+	Jump gd.array_direcciones
+	gd.main, Load gd.ptr_array_direcciones
+	Store gd.temp_ptr
+	Load gd.semilla
+	Add gd.semilla_base
+	/Add tiempo
+	Store gd.semilla_base
+	LoadImmi 4
+	Store gd.ctr_generador
+	
+	gd.inicio_ciclo_LCG, Load gd.ctr_generador
+	Subt +1
+	Store gd.ctr_generador
+	SkipCond 000
+	Jump gd.calculo_numero_aleatorio
+	JumpI generar_direcciones(semilla)
+	gd.calculo_numero_aleatorio, Load gd.a
+	Store multiplicando
+	Load gd.semilla_base
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add gdp.c
+	Store mod.dividend
+	Load gdp.m
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store gd.semilla_base
+	/De acuerdo al numero se asigna las direcciones por convencion
+	Load gd.semilla_base
+	SkipCond 400
+		Jump gd.verificar_izquierda
+	Load -16
+	Store gd.direccion
+	Jump gd.store_value
+
+	gd.verificar_izquierda, Load gd.semilla_base
+	Subt +1
+	SkipCond 400
+		Jump gd.verificar_abajo
+	Load -1
+	Store gd.direccion
+	Jump gd.store_value
+
+	gd.verificar_abajo, Load gd.semilla_base
+	Subt +1
+	Subt +1
+	SkipCond 400
+		Jump gd.asignar_derecha
+	Load +16
+	Store gd.direccion
+	Jump gd.store_value
+
+	gd.asignar_derecha, Load +1
+	Store gd.direccion
+	Jump gd.store_value
+	
+	gd.store_value, Load gd.direccion
+	StoreI gd.temp_ptr
+	Load gd.temp_ptr
+	Add +1
+	Store gd.temp_ptr
+	Jump gd.inicio_ciclo_LCG
+	
+	/Variables locales
+	gd.a, DEC 17
+	gd.c, DEC 43
+	gd.m, DEC 4
+	gd.direccion, DEC 0
+	gd.semilla_base, DEC 3
+	gd.semilla, DEC 0
+	gd.ctr_generador, DEC 4
+	gd.temp_ptr, HEX 0
+	gd.array_direcciones, JnS gd.ptr_array_direcciones
+		DEC 0
+		DEC 0
+		DEC 0
+		DEC 0
+	gd.ptr_array_direcciones, HEX 0
+	Jump gd.main
+/------------------------Fin funcion generar direcciones aleatorias que serviran para toda la partida-----------------
+
+//Funcion mover pacman aleatoriamente
+movimiento_pacman_rand(pos_pacman), HEX 0
+	Load mpr.pacman_ubi_ptr
+	Store pD.pos_inicial
+	Subt OFFSET
+	Add gd.semilla_base
+	Store gd.semilla
+	JnS generar_direcciones(semilla)
+	Load gd.ptr_array_direcciones
+	Store pD.ptr_array_prioridad
+	JnS pos_disponible(pos_inicial;ptr_array_prioridad)
+	Load pD.len_array
+	Store rnd.num_pos_avail
+	JnS random(num_pos_avail)
+
+	/Se selecciona una direccion aleatoria
+	Load pD.ptr_result_array
+	Add rnd.result
+	Store mpr.temp_array
+
+	LoadI mpr.temp_array
+	Store mpr.pacman_next_ubi_ptr
+	mpr.return, JumpI movimiento_pacman_rand(pos_pacman)
+
+	/Variables
+	mpr.pacman_ubi_ptr, HEX 0
+	mpr.pacman_next_ubi_ptr, HEX 0
+	mpr.ptr_array_prioridad, HEX 0
+	mpr.temp_array, HEX 0
+/--------------------------Fin funcion mover pacman aleatoriamente
+
+//Funcion mover pacman en base a las bolitas
+movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad), HEX 0	
+	Load mpb.pacman_ubi_ptr
+	Store vP.currentPos
+	Load +1
+	Store mpb.radio
+	LoadImmi 4
+	Store mpb.ctr
+	
+	mpb.while, LoadI mpb.ptr_array_prioridad
+	Store multiplicando
+	Load mpb.radio
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add mpb.pacman_ubi_ptr
+	Store vP.posToCheck
+	Subt DISPLAY_END
+	SkipCond 800
+		Jump mpb.cont
+	Jump mpb.incrementar
+	mpb.cont, JnS validatePos(currentPos;posToCheck)
+	SkipCond 000
+		Jump mpb.check_la_nada
+	mpb.incrementar, Load mpb.ptr_array_prioridad
+	Add +1
+	Store mpb.ptr_array_prioridad
+	Load mpb.ctr
+	Subt +1
+	Store mpb.ctr
+	SkipCond 400
+		Jump mpb.while
+	LoadImmi 3
+	Subt mpb.radio
+	SkipCond 400
+		Jump mpb.incrementar_radio
+	Load -1
+	Store mpb.pacman_next_ubi_ptr
+	Jump mpb.return
+
+	mpb.check_la_nada, LoadI vP.result
+	SkipCond 400
+		Jump mpb.store_value
+	Jump mpb.incrementar
+
+	mpb.incrementar_radio, Load mpb.radio
+	Add +1
+	Store mpb.radio
+	LoadImmi 4
+	Store mpb.ctr
+	Load mpb.ptr_array_prioridad
+	Subt mpb.ctr
+	Store mpb.ptr_array_prioridad
+	Jump mpb.while
+	
+	/guardar valor
+	mpb.store_value, LoadI mpb.ptr_array_prioridad
+		Add mpb.pacman_ubi_ptr
+		Store vP.posToCheck
+		JnS validatePos(currentPos;posToCheck)
+		Load vP.result
+		SkipCond 800
+			Jump mpb.incrementar
+		Store mpb.pacman_next_ubi_ptr
+		mpb.return, JumpI movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad)
+		
+	/Variables
+	mpb.ctr, DEC 4
+	mpb.radio, DEC 1
+	mpb.pacman_ubi_ptr, HEX 0
+	mpb.pacman_next_ubi_ptr, DEC -1
+	mpb.ptr_array_prioridad, HEX 0
+//--------------------Fin funcion mover pacman por bolitas------------------------
+
+//Funcion calcular aleatoriamente en las posiciones disponibles
+random(num_pos_avail), HEX 0
+	Load rnd.a
+	Store multiplicando
+	Load rnd.semilla
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add rnd.c
+	Store mod.dividend
+	Load rnd.m
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store rnd.semilla
+	Store mod.dividend
+	Load rnd.num_pos_avail
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store rnd.result
+	JumpI random(num_pos_avail)
+
+	/Variables
+	rnd.a, DEC 61
+	rnd.c, DEC 11
+	rnd.m, DEC 300
+	rnd.num_pos_avail, DEC -1
+	rnd.result, DEC -1
+	rnd.semilla, DEC 21
+/------------------Fin funcion calcular aleatoriamente en las posiciones disponibles -------------------------
+
+//Funcion obtener posiciones disponibles
+pos_disponible(pos_inicial;ptr_array_prioridad), HEX 0
+	Jump pD.result_array
+	pD.main, Load pD.ptr_result_array
+	Store pD.temp_ptr
+	LoadImmi 4
+	Store pD.ctr
+	Clear
+	Store pD.len_array
+	
+	Load pD.pos_inicial
+	Store vP.currentPos
+	
+	pD.while, LoadI pD.ptr_array_prioridad
+	Add pD.pos_inicial
+	Store vP.posToCheck
+	JnS validatePos(currentPos;posToCheck)
+	SkipCond 000
+		Jump pD.store_value
+	pD.incrementar, Load pD.ptr_array_prioridad
+	Add +1
+	Store pD.ptr_array_prioridad
+	Load pD.ctr
+	Subt +1
+	Store pD.ctr
+	SkipCond 400
+		Jump pD.while
+	pD.return, JumpI pos_disponible(pos_inicial;ptr_array_prioridad)
+	
+	/guardar valor
+	pD.store_value, Load vP.result
+		StoreI pD.temp_ptr
+		Load pD.temp_ptr
+		Add +1
+		Store pD.temp_ptr
+		Load pD.len_array
+		Add +1
+		Store pD.len_array
+		Jump pD.incrementar
+		
+	/Variables
+	pD.ctr, DEC 4
+	pD.len_array, DEC 0
+	pD.pos_inicial, DEC 0
+	pD.ptr_array_prioridad, HEX 0
+	pD.temp_ptr, HEX 0
+	pD.result_array, JnS pD.ptr_result_array
+		DEC 0
+		DEC 0
+		DEC 0
+		DEC 0
+	pD.ptr_result_array, HEX 0
+	Jump pD.main
+//--------------------Fin funcion obtener posiciones disponibles------------------------
+
+// Start - validatePos()
+validatePos(currentPos;posToCheck), HEX 000
+	Clear
+	Store vP.result
+
+	vP.validateUp, Load vP.posToCheck
+        Subt OFFSET
+		SkipCond 000
+			Jump vP.validateDown
+		Load vP.currentPos
+		Add +240
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	vP.validateDown, Load DISPLAY_END
+		Subt vP.posToCheck
+		SkipCond 000
+			Jump vP.validateRigthColumn
+		Load vP.currentPos
+		Subt +240
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	vP.validateRigthColumn, Load vP.posToCheck
+		Subt OFFSET
+		Store mod.dividend
+		Load +16
+		Store mod.divisor
+		JnS mod(dividend;divsor)
+		SkipCond 400
+			Jump vP.validateLeftColumn
+		Load vP.currentPos
+		Subt vP.posToCheck
+		Add +1
+		SkipCond 400 // the difference should be by only 1
+			Jump vP.validateLeftColumn
+		Load vP.currentPos
+		Subt +15
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+		
+	vP.validateLeftColumn, Load vP.posToCheck
+		Subt OFFSET
+		Store mod.dividend
+		Load +16
+		Store mod.divisor
+		JnS mod(dividend;divsor)
+		Subt +15
+		SkipCond 400
+			Jump vP.validatePosToCheck
+		Load vP.posToCheck
+		Subt vP.currentPos
+		Add +1
+		SkipCond 400 // the difference should be by only 1
+			Jump vP.validatePosToCheck
+		Load vP.currentPos
+		Add +15
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	vP.validatePosToCheck, Load vP.posToCheck
+	Store isWall.posToCheck
+	JnS isWall(postToCheck)
+	SkipCond 400
+		Jump vP.wallDetected
+	Load vP.posToCheck
+	Jump vP.storeResult
+
+	vP.storeResult, Store vP.result
+		Jump vP.return
+	
+	vP.wallDetected, Load -1
+		Store vP.result
+		Jump vP.return
+
+	vP.return, JumpI validatePos(currentPos;posToCheck)
+	
+vP.currentPos, DEC 0
+vP.posToCheck, DEC 0
+vP.result, DEC 0
+// End - validatePos()
+
+// Start - isWall()
+// Return 1 if there is a wall and 0 if there is no wall.
+isWall(postToCheck), hex 000
+	Load -1
+	Store isWall.result
+
+	LoadI isWall.posToCheck
+	Subt PARED_COLOR
+	SkipCond 0C00
+		Jump isWall.wallDetected
+	Jump isWall.noWallDetected
+
+	isWall.wallDetected, Load +1
+		Store isWall.result
+		Jump isWall.return
+	
+	isWall.noWallDetected, Load ZERO
+		Store isWall.result
+
+	isWall.return, JumpI isWall(postToCheck)
+	
+isWall.posToCheck, DEC 0
+isWall.result, DEC -1
+
+// End - isWall()
+
+// Start - mod()
+// Calculates mod operation between dividend and divisor.
+mod(dividend;divsor), HEX 000
+	Clear
+	Store mod.result
+
+	mod.while, Load mod.dividend
+		Subt mod.divisor
+		SkipCond 000
+			Jump mod.while_cont
+		Jump mod.return
+		mod.while_cont, Store mod.dividend
+			Jump mod.while
+
+	mod.return, Load mod.dividend
+		Store mod.result
+		JumpI mod(dividend;divsor)
+
+mod.dividend, DEC 0
+mod.divisor, DEC 0
+mod.result, DEC 0
+// End - mod()
+
+/Inicio funcion para multiplicar
+multiplicar, HEX 0
+	Clear
+	Store producto
+	Store neg_flag
+	/Comprobar si un numero es negativo
+	Load multiplicando
+	SkipCond 000
+	Jump comprobar_multiplicador
+	Load neg_flag
+	Add +1
+	Store neg_flag
+	Load multiplicando
+	Store abs.num
+	JnS abs(num)
+	Load abs.num
+	Store multiplicando
+	
+	comprobar_multiplicador, Load multiplicador
+	SkipCond 000
+	Jump calc_mult
+	Load neg_flag
+	Add +1
+	Store neg_flag
+	Load multiplicador
+	Store abs.num
+	JnS abs(num)
+	Load abs.num
+	Store multiplicador
+
+	calc_mult, Load multiplicador
+	SkipCond 400
+	Jump mult
+	JumpI multiplicar
+	mult, Load producto
+		Add multiplicando
+		Store producto
+		Load multiplicador
+		Subt +1
+		Store multiplicador
+		SkipCond 400
+		Jump mult
+		Load neg_flag
+		Subt +1
+		SkipCond 400
+			JumpI multiplicar
+		Jump convertir_negativo
+
+	convertir_negativo, Load producto
+	Subt producto
+	Subt producto
+	Store producto
+	JumpI multiplicar
+	
+	/Variables locales
+	multiplicador, DEC 0
+	multiplicando, DEC 0
+	producto, DEC 0
+	neg_flag, DEC 0
+/-----------------Fin funcion para multiplicar-----------------------
+
+
+/Funcion para calcular el valor absoluto
+abs(num), HEX 0
+	Load abs.num
+	SkipCond 000
+	JumpI abs(num)
+	Load abs.num
+	Subt abs.num
+	Subt abs.num
+	Store abs.num
+	JumpI abs(num)
+	
+	/Variables
+	abs.num, DEC 0
+/-------------------FIn funcion calcular valor absoluto --------------------------
+
+
+
+/Variables globales
+tiempo, DEC 0
+for_var, DEC 250
+OFFSET, HEX F00
+DISPLAY_END, HEX FFF
+display_ptr, HEX F00
+pacman_ptr, HEX 0
++1, DEC 1
+-1, DEC -1
+ZERO, DEC 0
++15, DEC 15
++16, DEC 16
+-16, DEC -16
++240, DEC 240
++255, DEC 255
+PARED_COLOR, HEX 421B
+color_pacman, HEX 7FA7
+color_fantasma,			HEX FFFF
+color_moneda,			HEX 5DCD
+color_esteroide,		HEX 3DA7
+/variables mapa
+ptr, HEX 32F
+Mapa, HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 7FA7
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 5DCD
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B
+	 HEX 421B

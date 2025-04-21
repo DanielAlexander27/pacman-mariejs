@@ -1,72 +1,159 @@
-Jump main
+Jump main()
 
+// CONSTANTS
+// COLORS
+BLUE_COLOR, HEX 001F
+PINKY_COLOR,  HEX 7EFB
+INKY_COLOR,   HEX 03FB
+CLYDE_COLOR,  HEX 7EF1
+BLINKY_COLOR, HEX 7C00
+PARED_COLOR, HEX 421B
+ESTEROIDE_COLOR, HEX 7E60
+BOLITA_COLOR, HEX 7FFF
+PAC-MAN_COLOR, HEX 7FE0
+
+// MAPS
 OFFSET, HEX F00
 MAP_POSITION, HEX F00
 ONE, DEC 1
-PARED_COLOR, HEX 421B
 
-ESTEROIDE_COLOR, HEX 7E60
-BOLITA_COLOR, HEX 7FFF
+// Global variables
+tiempo, DEC 0
+puntos, DEC 0
 
+// Cell Backups for ghosts
+PTR_INKY_CELL_BACKUP, HEX 010
+inky_cell_backup, HEX 000
+
+PTR_PINKY_CELL_BACKUP, HEX 012
+pinky_cell_backup, HEX 000
+
+PTR_CLYDE_CELL_BACKUP, HEX 014
+clyde_cell_backup, HEX 000
+
+PTR_BLINKY_CELL_BACKUP, HEX 016
+blinky_cell_backup, HEX 000
+
+// Entities Variables
+// PINKY (pink)
+PINKY_INITIAL_POS, HEX F77
+
+PTR_PINKY_POS, HEX 019
 pinky_pos, HEX F77
-pinky_direction, DEC 0
-pinky_target, DEC -1
-PINKY_COLOR, HEX 7EFB
 
-PTR_PINKY_PRIORIDAD_ARRAY, HEX 00C
-PINKY_PRIORIDAD_ARRAY, DEC 1
+PTR_PINKY_DIRECTION, HEX 01B
+pinky_direction, DEC 0
+
+PTR_PINKY_TARGET, HEX 01D
+pinky_target, DEC -1
+
+PTR_CURRENT_PINKY_COLOR, HEX 01F
+current_pinky_color, HEX 7EFB
+
+PTR_PINKY_PRIORIDAD_ARRAY, HEX 021
+PINKY_PRIORIDAD_ARRAY, DEC 16
 	DEC -1
 	DEC -16
-	DEC 16
+	DEC 1
 
+// INKY (SKY)
+INKY_INITIAL_POS, HEX F78
+
+PTR_INKY_POS, HEX 027
 inky_pos, HEX F78
-inky_direction, DEC 0
-inky_target, DEC -1
-INKY_COLOR, HEX 3FB
 
-PTR_INKY_PRIORIDAD_ARRAY, HEX 015
+PTR_INKY_DIRECTION, HEX 029
+inky_direction, DEC 0
+
+PTR_INKY_TARGET, HEX 02B
+inky_target, DEC -1
+
+PTR_CURRENT_INKY_COLOR, HEX 02D
+current_inky_color, HEX 3FB
+
+PTR_INKY_PRIORIDAD_ARRAY, HEX 02F
 INKY_PRIORIDAD_ARRAY, DEC 1
 	DEC -1
 	DEC -16
 	DEC 16
 
+// CLYDE (Orange)
+CLYDE_INITIAL_POS, HEX F87
+
+PTR_CLYDE_POS, HEX 035
 clyde_pos, HEX F87
+
+PTR_CLYDE_DIRECTION, HEX 037
 clyde_direction, DEC 0
+
+PTR_CLYDE_TARGET, HEX 039
 clyde_target, DEC -1
-CLYDE_COLOR, HEX 7EF1
 
-PTR_CLYDE_PRIORIDAD_ARRAY, HEX 01E
-CLYDE_PRIORIDAD_ARRAY, DEC 1
-	DEC -1
-	DEC -16
+PTR_CURRENT_CLYDE_COLOR, HEX 03B
+current_clyde_color, HEX 7EF1
+
+PTR_CLYDE_PRIORIDAD_ARRAY, HEX 03D
+CLYDE_PRIORIDAD_ARRAY, DEC -16
 	DEC 16
+	DEC -1
+	DEC 1
 
+// BLINKY (RED)
+BLINKY_INITIAL_POS, HEX F88
+
+PTR_BLINKY_POS, HEX 043
 blinky_pos, HEX F88
-blinky_direction, DEC 0
-blinky_target, DEC -1
-BLINKY_COLOR, HEX 7C00
 
-PTR_BLYINKY_PRIORIDAD_ARRAY, HEX 027
+PTR_BLINKY_DIRECTION, HEX 045
+blinky_direction, DEC 0
+
+PTR_BLINKY_TARGET, HEX 047
+blinky_target, DEC -1
+
+PTR_CURRENT_BLINKY_COLOR, HEX 049
+current_blinky_color, HEX 7C00
+
+PTR_BLYINKY_PRIORIDAD_ARRAY, HEX 04B
 BLYINKY_PRIORIDAD_ARRAY, DEC 1
 	DEC -1
 	DEC -16
 	DEC 16
 
-pac-manRow, DEC 12
-pac-manColumn, DEC 5
+// Pacman
+PACMAN_INITIAL_POS, HEX FC5
 pacman_pos, HEX FC5
-pacman_initial_pos, HEX FC5
+is_pacman_strong, DEC 0
 pacman_lives, DEC 3
-PAC-MAN_COLOR, HEX 7FE0
 
-tiempo, DEC 0
+// Configurable
+TIEMPO_ESTOROIDE, DEC 32
 
-main, JnS loadMap()
-JnS generar_direcciones_partida
-move, JnS moveEntities()
-Jump move
+// START - main()
+main(), JnS loadMap()
+	// Validar Tiempo Esteroide
+	Load TIEMPO_ESTOROIDE
+	SkipCond 000
+		Jump start
+	LoadImmi 1
+	Store TIEMPO_ESTOROIDE
+
+	start, JnS generar_direcciones_partida
+	Load pacman_lives
+	Output
+		
+	move, JnS moveEntities()
+	Jump move
+	
+end, Load puntos
+Output
+Halt
+// END - main()
 
 moveEntities(), HEX 0
+	Load pacman_lives
+	SkipCond 0C00
+		Jump end	
+	
 	JnS movePacman()
 
 	JnS reviewPositions()
@@ -75,121 +162,154 @@ moveEntities(), HEX 0
 	Store mG.ghost_direction
 	Load inky_pos
 	Store mG.ghost_pos
-	Load INKY_COLOR
+	Load current_inky_color
 	Store mG.ghost_color
 	Load inky_target
 	Store mG.ghost_target
 	Load PTR_INKY_PRIORIDAD_ARRAY
 	Store mG.ptr_array_prioridad
+	Load inky_cell_backup
+	Store mG.cell_backup
 
-	JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+	JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad;cell_backup)
 		Load mG.positionToMove
 		Store inky_pos
 		Load mG.ghost_direction
 		Store inky_direction
 		Load mG.ghost_target
 		Store inky_target
+		Load mG.cell_backup
+		Store inky_cell_backup
 
 	Load pinky_direction
 	Store mG.ghost_direction
 	Load pinky_pos
 	Store mG.ghost_pos
-	Load PINKY_COLOR
+	Load current_pinky_color
 	Store mG.ghost_color
 	Load pinky_target
 	Store mG.ghost_target
 	Load PTR_PINKY_PRIORIDAD_ARRAY
 	Store mG.ptr_array_prioridad
+	Load pinky_cell_backup
+	Store mG.cell_backup
 
-	JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+	JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad;cell_backup)
 		Load mG.positionToMove
 		Store pinky_pos
 		Load mG.ghost_direction
 		Store pinky_direction
 		Load mG.ghost_target
 		Store pinky_target
+		Load mG.cell_backup
+		Store pinky_cell_backup
 
 	Load clyde_direction
 	Store mG.ghost_direction
 	Load clyde_pos
 	Store mG.ghost_pos
-	Load CLYDE_COLOR
+	Load current_clyde_color
 	Store mG.ghost_color
 	Load clyde_target
 	Store mG.ghost_target
 	Load PTR_CLYDE_PRIORIDAD_ARRAY
 	Store mG.ptr_array_prioridad
+	Load clyde_cell_backup
+	Store mG.cell_backup
 
-	JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+	JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad;cell_backup)
 		Load mG.positionToMove
 		Store clyde_pos
 		Load mG.ghost_direction
 		Store clyde_direction
 		Load mG.ghost_target
 		Store clyde_target
+		Load mG.cell_backup
+		Store clyde_cell_backup
 
 	Load blinky_direction
 	Store mG.ghost_direction
 	Load blinky_pos
 	Store mG.ghost_pos
-	Load BLINKY_COLOR
+	Load current_blinky_color
 	Store mG.ghost_color
 	Load blinky_target
 	Store mG.ghost_target
 	Load PTR_BLYINKY_PRIORIDAD_ARRAY
 	Store mG.ptr_array_prioridad
+	Load blinky_cell_backup
+	Store mG.cell_backup
 
-	JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+	JnS moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad;cell_backup)
 		Load mG.positionToMove
 		Store blinky_pos
 		Load mG.ghost_direction
 		Store blinky_direction
 		Load mG.ghost_target
 		Store blinky_target
+		Load mG.cell_backup
+		Store blinky_cell_backup
 
 	// Valida si un fantasma atacó a Pacman
 	JnS reviewPositions()
+	JnS restoreGhostColors()
+
+	Load tiempo
+	Add +1
+	Store tiempo
 
 	mE.continue, JumpI moveEntities()
 
+// Start - movePacman()
 movePacman(), HEX 000
 	Load gdp.ptr_array_direcciones
 	Store mpb.ptr_array_prioridad
 	Load pacman_pos
 	Store mpb.pacman_ubi_ptr
+	Store mP.pacman_ubi_ptr
 	JnS movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad)
 	Load mpb.pacman_next_ubi_ptr
+	Store mP.pacman_next_ubi_ptr
 	SkipCond 000
-		Jump mover_pacman
+		Jump mP.check_bolita
 	Load gdp.ptr_array_direcciones
 	Store mpr.ptr_array_prioridad
 	Load pacman_pos
 	Store mpr.pacman_ubi_ptr
 	JnS movimiento_pacman_rand(pos_pacman)
-	Clear
-	StoreI mpr.pacman_ubi_ptr
-	Load PAC-MAN_COLOR
-	StoreI mpr.pacman_next_ubi_ptr
 	Load mpr.pacman_next_ubi_ptr
-	Store pacman_pos
-	Load tiempo
+	Store mP.pacman_next_ubi_ptr
+	Jump mP.check_bolita
+
+	mP.check_bolita, LoadI mP.pacman_next_ubi_ptr
+	Subt BOLITA_COLOR
+	SkipCond 400
+		Jump mP.check_esteroide
+	Load puntos
 	Add +1
-	Store tiempo
-	JumpI movePacman()
-		
+	Store puntos
+	Jump mover_pacman
+
+	mP.check_esteroide, LoadI mP.pacman_next_ubi_ptr
+	Subt ESTEROIDE_COLOR
+	SkipCond 400
+		Jump mover_pacman
+	JnS makeGhostsBlue()
+			
 	mover_pacman, Clear
-	StoreI mpb.pacman_ubi_ptr
+	StoreI mP.pacman_ubi_ptr
 	Load PAC-MAN_COLOR
-	StoreI mpb.pacman_next_ubi_ptr
-	Load mpb.pacman_next_ubi_ptr
+	StoreI mP.pacman_next_ubi_ptr
+	Load mP.pacman_next_ubi_ptr
 	Store pacman_pos
-	Load tiempo
-	Add +1
-	Store tiempo
 	JumpI movePacman()
+	
+	/Variable
+	mP.pacman_next_ubi_ptr, HEX 0
+	mP.pacman_ubi_ptr, HEX 0
+// END - movePacman()
 
-
-moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad), Hex 0
+moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad;cell_backup), Hex 0
 	Load mG.ghost_pos
 	Store dP.initialPos
 	Load mG.ghost_color
@@ -202,22 +322,22 @@ moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad
 	Store mG.ghost_direction
 	Load pacman_pos
 	Store mG.ghost_target
-	
+		
 	mG.move_to_target, Load mG.ghost_pos
 		Add mG.ghost_direction
 		Store mG.positionToMove
 		Jump mG.movePos
-
+		
 	mG.validateTarget, Load mG.ghost_target
 		SkipCond 000
 			Jump mG.targetReached
 		Jump mG.cleanValue
 
-		mG.targetReached, Load mG.ghost_pos
-			Subt mG.ghost_target
-			SkipCond 0C00
-				Jump mG.cleanValue
-			Jump mG.move_to_target
+	mG.targetReached, Load mG.ghost_pos
+		Subt mG.ghost_target
+		SkipCond 0C00
+			Jump mG.cleanValue
+		Jump mG.move_to_target
 
 	mG.cleanValue, Load -1
 		Store mG.ghost_target
@@ -239,654 +359,847 @@ moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad
 		LoadI mG.temp_ptr // position of interest to move
 		Store mG.positionToMove
 
-	mG.movePos, Load mG.positionToMove
+	mG.movePos, Load mG.cell_backup // restore the cell color where the ghost is
+		StoreI mG.ghost_pos
+
+		// Obtain the valid positin to move (used to calculate in mirror cases)
+		Load mG.positionToMove
 		Store vP.posToCheck
 		Load mG.ghost_pos
 		Store vP.currentPos
-		JnS validatePos(currentPos;posToCheck)
-		Load vP.result // It always be != 0
+		JnS validatePos(currentPos;posToCheck) // the result will be always != 0
+		// store the original content of the cell (only for bolita and esteroide)
+		LoadI vP.result
+		SkipCond 0400
+			Jump mG.checkBolita
+		Jump mG.storeColor
+
+	mG.checkBolita, Subt BOLITA_COLOR
+		SkipCond 0400
+			Jump mG.checkEsteroide
+		Jump mG.storeColor
+			
+	mG.checkEsteroide, LoadI vP.result
+		Subt ESTEROIDE_COLOR
+		SkipCond 0400
+			Jump mG.moveGhost
+	mG.storeColor, LoadI vP.result
+		Store mG.cell_backup
+
+	mG.moveGhost, Load vP.result 
 		Store mG.positionToMove
 		Load mG.ghost_color
 		StoreI mG.positionToMove
-		Clear
-		StoreI mG.ghost_pos
-		
-	mG.return, JumpI moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad)
+			
+	mG.return, JumpI moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad;cell_backup)
 
+	// Variables
+	mG.cell_backup, DEC 0
 	mG.ghost_direction, DEC 0
-	mG.positionToMove, DEC 0
+	mG.positionToMove, DEC 0
 	mG.temp_ptr, DEC 0
 	mG.ghost_pos, Dec 0
 	mG.ghost_color, DEC 0
 	mG.ptr_array_prioridad, DEC 0
 	mG.ghost_target, DEC -1
 
-
 // Start - reviewPositions()
 // Valida si pacman está sobre un fantasma y realiza la lógica correspondiente
 reviewPositions(), HEX 000
-	Load pacman_pos
-	Subt blinky_pos
-	SkipCond 0400
-		Jump rP.validar_pinky
+	// al llamar funcion logic se debe cargar la position original del fantasma
+	Load BLINKY_INITIAL_POS
+	Store rP.logic.initial_ghost_pos
 	Load BLINKY_COLOR
-	Store rP.colorToRecover
-	Jump rP.restore_pacman_original_pos
-
-	rP.validar_pinky, Load pacman_pos
-	Subt pinky_pos
-	SkipCond 0400
-		Jump rP.validar_inky
-	Load PINKY_COLOR
-	Store rP.colorToRecover
-	Jump rP.restore_pacman_original_pos
-
-	rP.validar_inky, Load pacman_pos
-	Subt inky_pos
-	SkipCond 0400	
-		Jump rP.validate_clyde
-	Load INKY_COLOR
-	Store rP.colorToRecover
-	Jump rP.restore_pacman_original_pos
+	Store rP.logic.ghost_original_color
+	Load PTR_BLINKY_POS
+	Store rP.logic.ptr_ghost_pos
+	Load PTR_CURRENT_BLINKY_COLOR
+	Store rP.logic.ptr_ghost_current_color
+	Load PTR_BLINKY_DIRECTION
+	Store rP.logic.ptr_ghost_direction
+	Load PTR_BLINKY_TARGET
+	Store rP.logic.ptr_ghost_target
+	Load PTR_BLINKY_CELL_BACKUP
+	Store rP.logic.ptr_ghost_cell_backup
+	Jns rP.logic()
 	
-	rP.validate_clyde, Load pacman_pos
-	Subt clyde_pos
-	SkipCond 0400
-		Jump rP.exit
+	Load PINKY_INITIAL_POS
+	Store rP.logic.initial_ghost_pos
+	Load PINKY_COLOR
+	Store rP.logic.ghost_original_color
+	Load PTR_PINKY_POS
+	Store rP.logic.ptr_ghost_pos
+	Load PTR_CURRENT_PINKY_COLOR
+	Store rP.logic.ptr_ghost_current_color
+	Load PTR_PINKY_DIRECTION
+	Store rP.logic.ptr_ghost_direction
+	Load PTR_PINKY_TARGET
+	Store rP.logic.ptr_ghost_target
+	Load PTR_PINKY_CELL_BACKUP
+	Store rP.logic.ptr_ghost_cell_backup
+	Jns rP.logic()
+
+	Load INKY_INITIAL_POS
+	Store rP.logic.initial_ghost_pos
+	Load INKY_COLOR
+	Store rP.logic.ghost_original_color
+	Load PTR_INKY_POS
+	Store rP.logic.ptr_ghost_pos
+	Load PTR_CURRENT_INKY_COLOR
+	Store rP.logic.ptr_ghost_current_color
+	Load PTR_INKY_DIRECTION
+	Store rP.logic.ptr_ghost_direction
+	Load PTR_INKY_TARGET
+	Store rP.logic.ptr_ghost_target
+	Load PTR_INKY_CELL_BACKUP
+	Store rP.logic.ptr_ghost_cell_backup
+	Jns rP.logic()
+
+	Load CLYDE_INITIAL_POS
+	Store rP.logic.initial_ghost_pos
 	Load CLYDE_COLOR
-	Store rP.colorToRecover
-	Jump rP.restore_pacman_original_pos
+	Store rP.logic.ghost_original_color
+	Load PTR_CLYDE_POS
+	Store rP.logic.ptr_ghost_pos
+	Load PTR_CURRENT_CLYDE_COLOR
+	Store rP.logic.ptr_ghost_current_color
+	Load PTR_CLYDE_DIRECTION
+	Store rP.logic.ptr_ghost_direction
+	Load PTR_CLYDE_TARGET
+	Store rP.logic.ptr_ghost_target
+	Load PTR_CLYDE_CELL_BACKUP
+	Store rP.logic.ptr_ghost_cell_backup
+	Jns rP.logic()
+		
+	rP.exit, JumpI reviewPositions()
+
+	rP.pacman_has_died, Load +1
+		Store rgc.has_pacman_died
+		JnS restoreGhostColors()
+		Clear 
+		Store rgc.has_pacman_died
 
 	rP.restore_pacman_original_pos, Load rP.colorToRecover
 		StoreI pacman_pos
 		Load PAC-MAN_COLOR
-		StoreI pacman_initial_pos
-		LOAD pacman_initial_pos
+		StoreI PACMAN_INITIAL_POS
+		LOAD PACMAN_INITIAL_POS
 		Store pacman_pos
 		Load pacman_lives
 		Subt +1
 		Store pacman_lives
+		Output
+		Jump rP.exit
 
-	rP.exit, JumpI reviewPositions()
+	// Start - rP.logic()
+	rP.logic(), HEX 000
+		LoadI rP.logic.ptr_ghost_pos
+		Subt pacman_pos
+		
+		SkipCond 0400
+			Jump rP.logic.exit
+		
+		Load rP.logic.ghost_original_color
+		Store rP.colorToRecover
+
+		Load is_pacman_strong
+		Subt +1
+		SkipCond 0400
+			Jump rP.restore_pacman_original_pos
+		LoadI rP.logic.ptr_ghost_current_color
+		Subt rP.logic.ghost_original_color
+		SkipCond 0C00
+			Jump rP.pacman_has_died
+		// The ghost is moved to its original position
+		Load rP.logic.initial_ghost_pos
+		StoreI rP.logic.ptr_ghost_pos
+		Load rP.logic.ghost_original_color
+		StoreI rP.logic.initial_ghost_pos
+		// Validation if the ghost is above of a BOLITA to add the point
+		LoadI rP.logic.ptr_ghost_cell_backup
+		Subt BOLITA_COLOR
+		SkipCond 0400
+			Jump rP.logic.restore
+		Load puntos
+		ADD +1 
+		Store puntos
+
+		// The ghost values are restored.
+		rP.logic.restore, Load rP.logic.ghost_original_color
+		StoreI rP.logic.ptr_ghost_current_color
+		Clear
+		StoreI rP.logic.ptr_ghost_direction
+		StoreI rP.logic.ptr_ghost_cell_backup
+		Load -1
+		StoreI rP.logic.ptr_ghost_target
+
+		Jump rP.exit
+
+		rP.logic.exit, JumpI rP.logic()
+		
+		// Variables
+		rP.logic.initial_ghost_pos, DEC 0
+		rP.logic.ghost_original_color, DEC 0
+		rP.logic.ptr_ghost_pos, HEX 0
+		rP.logic.ptr_ghost_current_color, HEX 0
+		rP.logic.ptr_ghost_direction, HEX 0
+		rP.logic.ptr_ghost_target, HEX 0
+		rP.logic.ptr_ghost_cell_backup, HEX 0
+	// END - rP.logic()
 
 	// Variables
 	rP.colorToRecover, HEX 0
+	rP.ghostOriginalPos, Hex 0
 // End - reviewPositions()
 
 
-// Start - detectPacman()
-// It returns the orientation where the ghost should go (up, down, left or right)
-// by returning -16, +16, -1 or +1, respectively. It returns 0 if pacman is not detected.
-detectPacman(initialPos;ghostColor), HEX 000
-	Clear
-	Store dP.result
+	// Start - detectPacman()
+	// It returns the orientation where the ghost should go (up, down, left or right)
+	// by returning -16, +16, -1 or +1, respectively. It returns 0 if pacman is not detected.
+	detectPacman(initialPos;ghostColor), HEX 000
+		Clear
+		Store dP.result
 
-	// Check if pacman and ghost are in the same column
-	Load +16
-	Store mod.divisor
-	Load pacman_pos
-	Store mod.dividend
-	Jns mod(dividend;divsor)
-	Load mod.result
-	Store dP.temp
+		// Check if pacman and ghost are in the same column
+		Load +16
+		Store mod.divisor
+		Load pacman_pos
+		Store mod.dividend
+		Jns mod(dividend;divsor)
+		Load mod.result
+		Store dP.temp
 
-	Load dP.initialPos
-	Store mod.dividend
-	JnS mod(dividend;divsor)
-	Load mod.result
-	Subt dP.temp
-	SkipCond 0C00
-		Jump dP.validateUp
-	// Check if pacman and ghost are in the same row
-	Load pacman_pos
-	Subt dP.initialPos
-	Add +15
-	
-	SkipCond 0C00 
-		Jump dP.validateRight
-	SkipCond 800
-		Jump dP.return
-	Subt +31
-	SkipCond 000
-		Jump dP.return
-	Jump dP.validateRight
-
-	// Loop to go tho the right
-	dP.validateRight, Load dP.initialPos
-	Store dP.prevPos
-	Add +1
-	Store dP.currentPos
-	Load +1
-	Store dP.addend
-	JnS dP.while
-	
-	// Loop to go to the left
-	dP.validateLeft, Load dP.initialPos
-	Store dP.prevPos
-	Subt +1
-	Store dP.currentPos
-	Load -1
-	Store dP.addend
-	JnS dP.while
-	
-	Jump dP.return
-
-	// Loop to go up
-	dP.validateUp, Load dP.initialPos
-	Store dP.prevPos
-	Subt +16
-	Store dP.currentPos
-	Load -16
-	Store dP.addend
-	JnS dP.while
-
-	// Loop to go down
-	dp.validateDown, Load dP.initialPos
-	Store dP.prevPos
-	Add +16
-	Store dP.currentPos
-	Load +16
-	Store dP.addend
-	JnS dP.while
-	Jump dP.return
-
-	dP.while, HEX 000
-		dP.startWhile, Load dP.prevPos
-		Store vP.currentPos
-		Load dP.currentPos
-		Store vP.posToCheck
-
-		JnS validatePos(currentPos;posToCheck)
-		Load vP.result
-		Store dP.currentPos
+		Load dP.initialPos
+		Store mod.dividend
+		JnS mod(dividend;divsor)
+		Load mod.result
+		Subt dP.temp
+		SkipCond 0C00
+			Jump dP.validateUp
+		// Check if pacman and ghost are in the same row
+		Load pacman_pos
+		Subt dP.initialPos
+		Add +15
+		
+		SkipCond 0C00 
+			Jump dP.validateRight
+		SkipCond 800
+			Jump dP.return
+		Subt +31
 		SkipCond 000
-			Jump dP.checkGhost
-		Jump dp.exitWhile
+			Jump dP.return
+		Jump dP.validateRight
 
-		dP.checkGhost, LoadI vP.result
-			Subt dP.ghostColor
-			SkipCond 0C00
-				Jump dp.exitWhile
-		// check pac-man
-		LoadI vP.result
-		Subt PAC-MAN_COLOR
-		SkipCond 400
-			Jump dp.continueWhile
-		Load dP.addend
-		Jump dp.storeResult
-		
-		dp.continueWhile, Load dP.currentPos
-			Store dP.prevPos
-			Add dP.addend
-			Store dP.currentPos
-			Jump dP.startWhile
-		
-		dp.exitWhile, JumpI dP.while	
-
-	dp.storeResult, Store dP.result
-	dP.return, JumpI detectPacman(initialPos;ghostColor)
-
-	dP.temp, DEC 0
-	dP.initialPos, DEC 0
-	dP.prevPos, DEC 0
-	dP.currentPos, DEC 0
-	dP.ghostColor, DEC -1
-	dP.addend, DEC -1
-	dP.result, DEC 0
-// End - detectPacman()
-
-
-// -------------------- START - get_pos_avail() ------------------------
-// Funcion para obtener posiciones disponibles de una entidad
-// Devuelve el puntero del array con las posiciones disponibles y también el
-// tamaño de este
-
-getPosAvail(pos_inicial;ptr_array_prioridad), HEX 0
-	// Initializae ptr to point to result_array
-	Jump gPA.result_array
-	// Set initial value for temp_ptr
-	gPA.main, Load gPA.ptr_result_array
-	Store gPA.temp_ptr
-	// Set initial value for counter
-	LoadImmi 4
-	Store gPA.ctr
-	// Set initial value for len_array
-	Clear
-	Store gPA.len_array
-	
-	Load gPA.pos_inicial
-	Store vP.currentPos
-	
-	gPA.while, LoadI gPA.ptr_array_prioridad
-	Add gPA.pos_inicial
-	Store vP.posToCheck
-	JnS validatePos(currentPos;posToCheck)
-	SkipCond 000
-		Jump gPA.store_value
-	gPA.incrementar, Load gPA.ptr_array_prioridad
-	Add +1
-	Store gPA.ptr_array_prioridad
-	Load gPA.ctr
-	Subt +1
-	Store gPA.ctr
-	SkipCond 400
-		Jump gPA.while
-	gPA.return, JumpI getPosAvail(pos_inicial;ptr_array_prioridad)
-	
-	/guardar valor
-	gPA.store_value, Load vP.result
-		StoreI gPA.temp_ptr
-		Load gPA.temp_ptr
+		// Loop to go tho the right
+		dP.validateRight, Load dP.initialPos
+		Store dP.prevPos
 		Add +1
-		Store gPA.temp_ptr
-		Load gPA.len_array
-		Add +1
-		Store gPA.len_array
-		Jump gPA.incrementar
+		Store dP.currentPos
+		Load +1
+		Store dP.addend
+		JnS dP.while
 		
-	// Variables
-	gPA.ctr, DEC 4
-	gPA.len_array, DEC 0
-	gPA.pos_inicial, DEC 0
-	gPA.ptr_array_prioridad, HEX 0
-	gPA.temp_ptr, HEX 0
-
-	// Trick to store the ptr position during runtime
-	gPA.result_array, JnS gPA.ptr_result_array
-		DEC 0
-		DEC 0
-		DEC 0
-		DEC 0
-	gPA.ptr_result_array, HEX 0
-		Jump gPA.main
-// -------------------- END - get_pos_avail() ------------------------
-
-//Funcion calcular aleatoriamente en las posiciones disponibles
-random(num_pos_avail), HEX 0
-	Load rnd.a
-	Store multiplicando
-	Load rnd.semilla
-	Store multiplicador
-	JnS multiplicar
-	Load producto
-	Add rnd.c
-	Store mod.dividend
-	Load rnd.m
-	Store mod.divisor
-	JnS mod(dividend;divsor)
-	Load mod.result
-	Store rnd.semilla
-	Store mod.dividend
-	Load rnd.num_pos_avail
-	Store mod.divisor
-	JnS mod(dividend;divsor)
-	Load mod.result
-	Store rnd.result
-	JumpI random(num_pos_avail)
-
-	/Variables
-	rnd.a, DEC 17
-	rnd.c, DEC 43
-	rnd.m, DEC 500
-	rnd.num_pos_avail, DEC -1
-	rnd.result, DEC -1
-	rnd.semilla, DEC 103
-/------------------Fin funcion calcular aleatoriamente en las posiciones disponibles -------------------------
-
-/Inicio funcion para multiplicar
-multiplicar, HEX 0
-	Clear
-	Store producto
-	Store neg_flag
-	/Comprobar si un numero es negativo
-	Load multiplicando
-	SkipCond 000
-	Jump comprobar_multiplicador
-	Load neg_flag
-	Add +1
-	Store neg_flag
-	Load multiplicando
-	Store abs.num
-	JnS abs(num)
-	Load abs.num
-	Store multiplicando
-	
-	comprobar_multiplicador, Load multiplicador
-	SkipCond 000
-	Jump calc_mult
-	Load neg_flag
-	Add +1
-	Store neg_flag
-	Load multiplicador
-	Store abs.num
-	JnS abs(num)
-	Load abs.num
-	Store multiplicador
-
-	calc_mult, Load multiplicador
-	SkipCond 400
-	Jump mult
-	JumpI multiplicar
-	mult, Load producto
-		Add multiplicando
-		Store producto
-		Load multiplicador
+		// Loop to go to the left
+		dP.validateLeft, Load dP.initialPos
+		Store dP.prevPos
 		Subt +1
+		Store dP.currentPos
+		Load -1
+		Store dP.addend
+		JnS dP.while
+		
+		Jump dP.return
+
+		// Loop to go up
+		dP.validateUp, Load dP.initialPos
+		Store dP.prevPos
+		Subt +16
+		Store dP.currentPos
+		Load -16
+		Store dP.addend
+		JnS dP.while
+
+		// Loop to go down
+		dp.validateDown, Load dP.initialPos
+		Store dP.prevPos
+		Add +16
+		Store dP.currentPos
+		Load +16
+		Store dP.addend
+		JnS dP.while
+		Jump dP.return
+
+		dP.while, HEX 000
+			dP.startWhile, Load dP.prevPos
+			Store vP.currentPos
+			Load dP.currentPos
+			Store vP.posToCheck
+
+			JnS validatePos(currentPos;posToCheck)
+			Load vP.result
+			Store dP.currentPos
+			SkipCond 000
+				Jump dP.checkGhost
+			Jump dp.exitWhile
+
+			dP.checkGhost, LoadI vP.result
+				Subt dP.ghostColor
+				SkipCond 0C00
+					Jump dp.exitWhile
+			// check pac-man
+			LoadI vP.result
+			Subt PAC-MAN_COLOR
+			SkipCond 400
+				Jump dp.continueWhile
+			Load dP.addend
+			Jump dp.storeResult
+			
+			dp.continueWhile, Load dP.currentPos
+				Store dP.prevPos
+				Add dP.addend
+				Store dP.currentPos
+				Jump dP.startWhile
+			
+			dp.exitWhile, JumpI dP.while	
+
+		dp.storeResult, Store dP.result
+		dP.return, JumpI detectPacman(initialPos;ghostColor)
+
+		dP.temp, DEC 0
+		dP.initialPos, DEC 0
+		dP.prevPos, DEC 0
+		dP.currentPos, DEC 0
+		dP.ghostColor, DEC -1
+		dP.addend, DEC -1
+		dP.result, DEC 0
+	// End - detectPacman()
+
+
+	// START - makeGhostsBlue()
+	makeGhostsBlue(), HEX 0
+		LoadImmi 1
+		Store is_pacman_strong
+		Load tiempo
+		Store rgc.tiempo_azul_inicio
+
+		Load BLUE_COLOR
+		Store current_pinky_color
+		StoreI pinky_pos
+
+		Load BLUE_COLOR
+		Store current_inky_color
+		StoreI inky_pos
+
+		Load BLUE_COLOR
+		Store current_clyde_color
+		StoreI clyde_pos
+
+		Load BLUE_COLOR
+		Store current_blinky_color
+		StoreI blinky_pos
+
+		JumpI makeGhostsBlue()
+	// END - makeGhostsBlue()
+
+	// START - restoreGhostColors()
+	restoreGhostColors(), HEX 0
+		Load rgc.has_pacman_died
+		Subt +1
+		SkipCond 0C00
+			Jump rgc.restore
+		Load rgc.tiempo_azul_inicio
+		SkipCond 400       
+			Jump rgc.check_time_passed
+		JumpI restoreGhostColors()
+
+		rgc.check_time_passed, Load tiempo
+		Subt rgc.tiempo_azul_inicio
+		Subt TIEMPO_ESTOROIDE
+		SkipCond 000       
+			Jump rgc.restore
+		JumpI restoreGhostColors()
+
+		rgc.restore, Load PINKY_COLOR
+		Store current_pinky_color
+		StoreI pinky_pos
+
+		Load INKY_COLOR
+		Store current_inky_color
+		StoreI inky_pos
+
+		Load CLYDE_COLOR
+		Store current_clyde_color
+		StoreI clyde_pos
+
+		Load BLINKY_COLOR
+		Store current_blinky_color
+		StoreI blinky_pos
+
+		// Resetear tiempo_azul_inicio
+		Clear
+		Store rgc.tiempo_azul_inicio
+		Store is_pacman_strong
+
+		JumpI restoreGhostColors()
+
+		// Variables
+		rgc.has_pacman_died, DEC 0
+
+		rgc.tiempo_azul_inicio, DEC 0
+	// END - restoreGhostColors()
+
+
+	// -------------------- START - get_pos_avail() ------------------------
+	// Funcion para obtener posiciones disponibles de una entidad
+	// Devuelve el puntero del array con las posiciones disponibles y también el
+	// tamaño de este
+
+	getPosAvail(pos_inicial;ptr_array_prioridad), HEX 0
+		// Initializae ptr to point to result_array
+		Jump gPA.result_array
+		// Set initial value for temp_ptr
+		gPA.main, Load gPA.ptr_result_array
+		Store gPA.temp_ptr
+		// Set initial value for counter
+		LoadImmi 4
+		Store gPA.ctr
+		// Set initial value for len_array
+		Clear
+		Store gPA.len_array
+		
+		Load gPA.pos_inicial
+		Store vP.currentPos
+		
+		gPA.while, LoadI gPA.ptr_array_prioridad
+		Add gPA.pos_inicial
+		Store vP.posToCheck
+		JnS validatePos(currentPos;posToCheck)
+		SkipCond 000
+			Jump gPA.store_value
+		gPA.incrementar, Load gPA.ptr_array_prioridad
+		Add +1
+		Store gPA.ptr_array_prioridad
+		Load gPA.ctr
+		Subt +1
+		Store gPA.ctr
+		SkipCond 400
+			Jump gPA.while
+		gPA.return, JumpI getPosAvail(pos_inicial;ptr_array_prioridad)
+		
+		/guardar valor
+		gPA.store_value, Load vP.result
+			StoreI gPA.temp_ptr
+			Load gPA.temp_ptr
+			Add +1
+			Store gPA.temp_ptr
+			Load gPA.len_array
+			Add +1
+			Store gPA.len_array
+			Jump gPA.incrementar
+			
+		// Variables
+		gPA.ctr, DEC 4
+		gPA.len_array, DEC 0
+		gPA.pos_inicial, DEC 0
+		gPA.ptr_array_prioridad, HEX 0
+		gPA.temp_ptr, HEX 0
+
+		// Trick to store the ptr position during runtime
+		gPA.result_array, JnS gPA.ptr_result_array
+			DEC 0
+			DEC 0
+			DEC 0
+			DEC 0
+		gPA.ptr_result_array, HEX 0
+			Jump gPA.main
+	// -------------------- END - get_pos_avail() ------------------------
+
+	//Funcion calcular aleatoriamente en las posiciones disponibles
+	random(num_pos_avail), HEX 0
+		Load rnd.a
+		Store multiplicando
+		Load rnd.semilla
 		Store multiplicador
+		JnS multiplicar
+		Load producto
+		Add rnd.c
+		Store mod.dividend
+		Load rnd.m
+		Store mod.divisor
+		JnS mod(dividend;divsor)
+		Load mod.result
+		Store rnd.semilla
+		Store mod.dividend
+		Load rnd.num_pos_avail
+		Store mod.divisor
+		JnS mod(dividend;divsor)
+		Load mod.result
+		Store rnd.result
+		JumpI random(num_pos_avail)
+
+		/Variables
+		rnd.a, DEC 17
+		rnd.c, DEC 43
+		rnd.m, DEC 500
+		rnd.num_pos_avail, DEC -1
+		rnd.result, DEC -1
+		rnd.semilla, DEC 103
+	/------------------Fin funcion calcular aleatoriamente en las posiciones disponibles -------------------------
+
+	/Inicio funcion para multiplicar
+	multiplicar, HEX 0
+		Clear
+		Store producto
+		Store neg_flag
+		/Comprobar si un numero es negativo
+		Load multiplicando
+		SkipCond 000
+		Jump comprobar_multiplicador
+		Load neg_flag
+		Add +1
+		Store neg_flag
+		Load multiplicando
+		Store abs.num
+		JnS abs(num)
+		Load abs.num
+		Store multiplicando
+		
+		comprobar_multiplicador, Load multiplicador
+		SkipCond 000
+		Jump calc_mult
+		Load neg_flag
+		Add +1
+		Store neg_flag
+		Load multiplicador
+		Store abs.num
+		JnS abs(num)
+		Load abs.num
+		Store multiplicador
+
+		calc_mult, Load multiplicador
 		SkipCond 400
 		Jump mult
-		Load neg_flag
+		JumpI multiplicar
+		mult, Load producto
+			Add multiplicando
+			Store producto
+			Load multiplicador
+			Subt +1
+			Store multiplicador
+			SkipCond 400
+			Jump mult
+			Load neg_flag
+			Subt +1
+			SkipCond 400
+				JumpI multiplicar
+			Jump convertir_negativo
+
+		convertir_negativo, Load producto
+		Subt producto
+		Subt producto
+		Store producto
+		JumpI multiplicar
+		
+		/Variables locales
+		multiplicador, DEC 0
+		multiplicando, DEC 0
+		producto, DEC 0
+		neg_flag, DEC 0
+	/-----------------Fin funcion para multiplicar-----------------------
+
+	/Funcion para calcular el valor absoluto
+	abs(num), HEX 0
+		Load abs.num
+		SkipCond 000
+		JumpI abs(num)
+		Load abs.num
+		Subt abs.num
+		Subt abs.num
+		Store abs.num
+		JumpI abs(num)
+		
+		/Variables
+		abs.num, DEC 0
+	/-------------------FIn funcion calcular valor absoluto --------------------------
+
+	// Input
+	// Store mod.dividend
+	// Input
+	// Store mod.divisor
+	// JnS mod(dividend;divsor)
+	// Output
+	// Halt
+
+	// Start - mod()
+	// Calculates mod operation between dividend and divisor.
+	mod(dividend;divsor), HEX 000
+		Clear
+		Store mod.result
+
+		mod.while, Load mod.dividend
+			Subt mod.divisor
+			SkipCond 000
+				Jump mod.while_cont
+			Jump mod.return
+			mod.while_cont, Store mod.dividend
+				Jump mod.while
+
+		mod.return, Load mod.dividend
+			Store mod.result
+			JumpI mod(dividend;divsor)
+
+	mod.dividend, DEC 0
+	mod.divisor, DEC 0
+	mod.result, DEC 0
+	// End - mod()
+
+	/ main, Load currentPos
+	/ Store vP.currentPos
+	/ Add +16
+	/ Store vP.posToCheck
+	/ JnS validatePos(currentPos;posToCheck)
+	/ Output
+	/ Halt
+
+	/ currentPos, HEX F60
+
+	// Start - validatePos()
+	// Reminder: It works with absolute positions, from F00 to FFF
+	validatePos(currentPos;posToCheck), HEX 000
+		Clear
+		Store vP.result
+
+		vP.validateUp, Load vP.posToCheck
+			Subt OFFSET
+			SkipCond 000
+				Jump vP.validateDown
+			Load vP.currentPos
+			Add +240
+			Store isWall.posToCheck
+			JnS isWall(postToCheck)
+			SkipCond 400
+				Jump vP.wallDetected
+			Load isWall.posToCheck
+			Jump vP.storeResult
+
+		vP.validateDown, Load DISPLAY_END
+			Subt vP.posToCheck
+			SkipCond 000
+				Jump vP.validateRigthColumn
+			Load vP.currentPos
+			Subt +240
+			Store isWall.posToCheck
+			JnS isWall(postToCheck)
+			SkipCond 400
+				Jump vP.wallDetected
+			Load isWall.posToCheck
+			Jump vP.storeResult
+
+		vP.validateRigthColumn, Load vP.posToCheck
+			Subt OFFSET
+			Store mod.dividend
+			Load +16
+			Store mod.divisor
+			JnS mod(dividend;divsor)
+			SkipCond 400
+				Jump vP.validateLeftColumn
+			Load vP.currentPos
+			Subt vP.posToCheck
+			Add +1
+			SkipCond 400 // the difference should be by only 1
+				Jump vP.validateLeftColumn
+			Load vP.currentPos
+			Subt +15
+			Store isWall.posToCheck
+			JnS isWall(postToCheck)
+			SkipCond 400
+				Jump vP.wallDetected
+			Load isWall.posToCheck
+			Jump vP.storeResult
+			
+		vP.validateLeftColumn, Load vP.posToCheck
+			Subt OFFSET
+			Store mod.dividend
+			Load +16
+			Store mod.divisor
+			JnS mod(dividend;divsor)
+			Subt +15
+			SkipCond 400
+				Jump vP.validatePosToCheck
+			Load vP.posToCheck
+			Subt vP.currentPos
+			Add +1
+			SkipCond 400 // the difference should be by only 1
+				Jump vP.validatePosToCheck
+			Load vP.currentPos
+			Add +15
+			Store isWall.posToCheck
+			JnS isWall(postToCheck)
+			SkipCond 400
+				Jump vP.wallDetected
+			Load isWall.posToCheck
+			Jump vP.storeResult
+
+		vP.validatePosToCheck, Load vP.posToCheck
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load vP.posToCheck
+		Jump vP.storeResult
+
+		vP.storeResult, Store vP.result
+			Jump vP.return
+		
+		vP.wallDetected, Load -1
+			Store vP.result
+			Jump vP.return
+
+		vP.return, JumpI validatePos(currentPos;posToCheck)
+		
+	vP.currentPos, DEC 0
+	vP.posToCheck, DEC 0
+	vP.result, DEC 0
+	// End - validatePos()
+
+	// Start - isWall()
+	// Return 1 if there is a wall and 0 if there is no wall.
+	isWall(postToCheck), hex 000
+		Load -1
+		Store isWall.result
+
+		LoadI isWall.posToCheck
+		Subt PARED_COLOR
+		SkipCond 0C00
+			Jump isWall.wallDetected
+		Jump isWall.noWallDetected
+
+		isWall.wallDetected, Load +1
+			Store isWall.result
+			Jump isWall.return
+		
+		isWall.noWallDetected, Load ZERO
+			Store isWall.result
+
+		isWall.return, JumpI isWall(postToCheck)
+		
+	isWall.posToCheck, DEC 0
+	isWall.result, DEC -1
+	// End - isWall()
+
+	/Inicio funcion generar direcciones aleatorias que serviran para toda la partida
+	generar_direcciones(semilla), HEX 0
+		Jump gd.array_direcciones
+		gd.main, Load gd.ptr_array_direcciones
+		Store gd.temp_ptr
+		Load gd.semilla
+		Store gd.semilla_base
+		LoadImmi 4
+		Store gd.ctr_generador
+		
+		gd.inicio_ciclo_LCG, Load gd.ctr_generador
+		Subt +1
+		Store gd.ctr_generador
+		SkipCond 000
+		Jump gd.calculo_numero_aleatorio
+		JumpI generar_direcciones(semilla)
+		gd.calculo_numero_aleatorio, Load gd.a
+		Store multiplicando
+		Load gd.semilla_base
+		Store multiplicador
+		JnS multiplicar
+		Load producto
+		Add gd.c
+		Store mod.dividend
+		Load gd.m
+		Store mod.divisor
+		JnS mod(dividend;divsor)
+		Load mod.result
+		Store gd.semilla_base
+		/De acuerdo al numero se asigna las direcciones por convencion
+		Load gd.semilla_base
+		SkipCond 400
+			Jump gd.verificar_izquierda
+		Load -16
+		Store gd.direccion
+		Jump gd.store_value
+
+		gd.verificar_izquierda, Load gd.semilla_base
 		Subt +1
 		SkipCond 400
-			JumpI multiplicar
-		Jump convertir_negativo
+			Jump gd.verificar_abajo
+		Load -1
+		Store gd.direccion
+		Jump gd.store_value
 
-	convertir_negativo, Load producto
-	Subt producto
-	Subt producto
-	Store producto
-	JumpI multiplicar
-	
-	/Variables locales
-	multiplicador, DEC 0
-	multiplicando, DEC 0
-	producto, DEC 0
-	neg_flag, DEC 0
-/-----------------Fin funcion para multiplicar-----------------------
-
-/Funcion para calcular el valor absoluto
-abs(num), HEX 0
-	Load abs.num
-	SkipCond 000
-	JumpI abs(num)
-	Load abs.num
-	Subt abs.num
-	Subt abs.num
-	Store abs.num
-	JumpI abs(num)
-	
-	/Variables
-	abs.num, DEC 0
-/-------------------FIn funcion calcular valor absoluto --------------------------
-
-// Input
-// Store mod.dividend
-// Input
-// Store mod.divisor
-// JnS mod(dividend;divsor)
-// Output
-// Halt
-
-// Start - mod()
-// Calculates mod operation between dividend and divisor.
-mod(dividend;divsor), HEX 000
-	Clear
-	Store mod.result
-
-	mod.while, Load mod.dividend
-		Subt mod.divisor
-		SkipCond 000
-			Jump mod.while_cont
-		Jump mod.return
-		mod.while_cont, Store mod.dividend
-			Jump mod.while
-
-	mod.return, Load mod.dividend
-		Store mod.result
-		JumpI mod(dividend;divsor)
-
-mod.dividend, DEC 0
-mod.divisor, DEC 0
-mod.result, DEC 0
-// End - mod()
-
-/ main, Load currentPos
-/ Store vP.currentPos
-/ Add +16
-/ Store vP.posToCheck
-/ JnS validatePos(currentPos;posToCheck)
-/ Output
-/ Halt
-
-/ currentPos, HEX F60
-
-// Start - validatePos()
-// Reminder: It works with absolute positions, from F00 to FFF
-validatePos(currentPos;posToCheck), HEX 000
-	Clear
-	Store vP.result
-
-	vP.validateUp, Load vP.posToCheck
-        Subt OFFSET
-		SkipCond 000
-			Jump vP.validateDown
-		Load vP.currentPos
-		Add +240
-		Store isWall.posToCheck
-		JnS isWall(postToCheck)
+		gd.verificar_abajo, Load gd.semilla_base
+		Subt +1
+		Subt +1
 		SkipCond 400
-			Jump vP.wallDetected
-		Load isWall.posToCheck
-		Jump vP.storeResult
-
-	vP.validateDown, Load DISPLAY_END
-		Subt vP.posToCheck
-		SkipCond 000
-			Jump vP.validateRigthColumn
-		Load vP.currentPos
-		Subt +240
-		Store isWall.posToCheck
-		JnS isWall(postToCheck)
-		SkipCond 400
-			Jump vP.wallDetected
-		Load isWall.posToCheck
-		Jump vP.storeResult
-
-	vP.validateRigthColumn, Load vP.posToCheck
-		Subt OFFSET
-		Store mod.dividend
+			Jump gd.asignar_derecha
 		Load +16
-		Store mod.divisor
-		JnS mod(dividend;divsor)
-		SkipCond 400
-			Jump vP.validateLeftColumn
-		Load vP.currentPos
-		Subt vP.posToCheck
-		Add +1
-		SkipCond 400 // the difference should be by only 1
-			Jump vP.validateLeftColumn
-		Load vP.currentPos
-		Subt +15
-		Store isWall.posToCheck
-		JnS isWall(postToCheck)
-		SkipCond 400
-			Jump vP.wallDetected
-		Load isWall.posToCheck
-		Jump vP.storeResult
+		Store gd.direccion
+		Jump gd.store_value
+
+		gd.asignar_derecha, Load +1
+		Store gd.direccion
+		Jump gd.store_value
 		
-	vP.validateLeftColumn, Load vP.posToCheck
-		Subt OFFSET
-		Store mod.dividend
-		Load +16
-		Store mod.divisor
-		JnS mod(dividend;divsor)
-		Subt +15
-		SkipCond 400
-			Jump vP.validatePosToCheck
-		Load vP.posToCheck
-		Subt vP.currentPos
+		gd.store_value, Load gd.direccion
+		StoreI gd.temp_ptr
+		Load gd.temp_ptr
 		Add +1
-		SkipCond 400 // the difference should be by only 1
-			Jump vP.validatePosToCheck
-		Load vP.currentPos
-		Add +15
-		Store isWall.posToCheck
-		JnS isWall(postToCheck)
-		SkipCond 400
-			Jump vP.wallDetected
-		Load isWall.posToCheck
-		Jump vP.storeResult
+		Store gd.temp_ptr
+		Jump gd.inicio_ciclo_LCG
+		
+		/Variables locales
+		gd.a, DEC 17
+		gd.c, DEC 43
+		gd.m, DEC 4
+		gd.direccion, DEC 0
+		gd.semilla_base, DEC 3
+		gd.semilla, DEC 0
+		gd.ctr_generador, DEC 4
+		gd.temp_ptr, HEX 0
+		gd.array_direcciones, JnS gd.ptr_array_direcciones
+			DEC 0
+			DEC 0
+			DEC 0
+			DEC 0
+		gd.ptr_array_direcciones, HEX 0
+		Jump gd.main
+	/------------------------Fin funcion generar direcciones aleatorias que serviran para toda la partida-----------------
 
-	vP.validatePosToCheck, Load vP.posToCheck
-	Store isWall.posToCheck
-	JnS isWall(postToCheck)
-	SkipCond 400
-		Jump vP.wallDetected
-	Load vP.posToCheck
-	Jump vP.storeResult
+	//Funcion mover pacman aleatoriamente
+	movimiento_pacman_rand(pos_pacman), HEX 0
+		Load mpr.pacman_ubi_ptr
+		Store gPA.pos_inicial
+		Subt OFFSET
+		Add gd.semilla_base
+		Store gd.semilla
+		JnS generar_direcciones(semilla)
+		Load gdp.ptr_array_direcciones
+		Store gPA.ptr_array_prioridad
+		JnS getPosAvail(pos_inicial;ptr_array_prioridad)
+		Load gPA.len_array
+		Store rnd.num_pos_avail
+		JnS random(num_pos_avail)
 
-	vP.storeResult, Store vP.result
-		Jump vP.return
-	
-	vP.wallDetected, Load -1
-		Store vP.result
-		Jump vP.return
+		/Se selecciona una direccion aleatoria
+		Load gPA.ptr_result_array
+		Add rnd.result
+		Store mpr.temp_array
 
-	vP.return, JumpI validatePos(currentPos;posToCheck)
-	
-vP.currentPos, DEC 0
-vP.posToCheck, DEC 0
-vP.result, DEC 0
-// End - validatePos()
+		LoadI mpr.temp_array
+		Store mpr.pacman_next_ubi_ptr
+		mpr.return, JumpI movimiento_pacman_rand(pos_pacman)
 
-// Start - isWall()
-// Return 1 if there is a wall and 0 if there is no wall.
-isWall(postToCheck), hex 000
-	Load -1
-	Store isWall.result
-
-	LoadI isWall.posToCheck
-	Subt PARED_COLOR
-	SkipCond 0C00
-		Jump isWall.wallDetected
-	Jump isWall.noWallDetected
-
-	isWall.wallDetected, Load +1
-		Store isWall.result
-		Jump isWall.return
-	
-	isWall.noWallDetected, Load ZERO
-		Store isWall.result
-
-	isWall.return, JumpI isWall(postToCheck)
-	
-isWall.posToCheck, DEC 0
-isWall.result, DEC -1
-// End - isWall()
-
-/Inicio funcion generar direcciones aleatorias que serviran para toda la partida
-generar_direcciones(semilla), HEX 0
-	Jump gd.array_direcciones
-	gd.main, Load gd.ptr_array_direcciones
-	Store gd.temp_ptr
-	Load gd.semilla
-	Store gd.semilla_base
-	LoadImmi 4
-	Store gd.ctr_generador
-	
-	gd.inicio_ciclo_LCG, Load gd.ctr_generador
-	Subt +1
-	Store gd.ctr_generador
-	SkipCond 000
-	Jump gd.calculo_numero_aleatorio
-	JumpI generar_direcciones(semilla)
-	gd.calculo_numero_aleatorio, Load gd.a
-	Store multiplicando
-	Load gd.semilla_base
-	Store multiplicador
-	JnS multiplicar
-	Load producto
-	Add gd.c
-	Store mod.dividend
-	Load gd.m
-	Store mod.divisor
-	JnS mod(dividend;divsor)
-	Load mod.result
-	Store gd.semilla_base
-	/De acuerdo al numero se asigna las direcciones por convencion
-	Load gd.semilla_base
-	SkipCond 400
-		Jump gd.verificar_izquierda
-	Load -16
-	Store gd.direccion
-	Jump gd.store_value
-
-	gd.verificar_izquierda, Load gd.semilla_base
-	Subt +1
-	SkipCond 400
-		Jump gd.verificar_abajo
-	Load -1
-	Store gd.direccion
-	Jump gd.store_value
-
-	gd.verificar_abajo, Load gd.semilla_base
-	Subt +1
-	Subt +1
-	SkipCond 400
-		Jump gd.asignar_derecha
-	Load +16
-	Store gd.direccion
-	Jump gd.store_value
-
-	gd.asignar_derecha, Load +1
-	Store gd.direccion
-	Jump gd.store_value
-	
-	gd.store_value, Load gd.direccion
-	StoreI gd.temp_ptr
-	Load gd.temp_ptr
-	Add +1
-	Store gd.temp_ptr
-	Jump gd.inicio_ciclo_LCG
-	
-	/Variables locales
-	gd.a, DEC 17
-	gd.c, DEC 43
-	gd.m, DEC 4
-	gd.direccion, DEC 0
-	gd.semilla_base, DEC 3
-	gd.semilla, DEC 0
-	gd.ctr_generador, DEC 4
-	gd.temp_ptr, HEX 0
-	gd.array_direcciones, JnS gd.ptr_array_direcciones
-		DEC 0
-		DEC 0
-		DEC 0
-		DEC 0
-	gd.ptr_array_direcciones, HEX 0
-	Jump gd.main
-/------------------------Fin funcion generar direcciones aleatorias que serviran para toda la partida-----------------
-
-//Funcion mover pacman aleatoriamente
-movimiento_pacman_rand(pos_pacman), HEX 0
-	Load mpr.pacman_ubi_ptr
-	Store gPA.pos_inicial
-	Subt OFFSET
-	Add gd.semilla_base
-	Store gd.semilla
-	JnS generar_direcciones(semilla)
-	Load gdp.ptr_array_direcciones
-	Store gPA.ptr_array_prioridad
-	JnS getPosAvail(pos_inicial;ptr_array_prioridad)
-	Load gPA.len_array
-	Store rnd.num_pos_avail
-	JnS random(num_pos_avail)
-
-	/Se selecciona una direccion aleatoria
-	Load gPA.ptr_result_array
-	Add rnd.result
-	Store mpr.temp_array
-
-	LoadI mpr.temp_array
-	Store mpr.pacman_next_ubi_ptr
-	mpr.return, JumpI movimiento_pacman_rand(pos_pacman)
-
-	/Variables
-	mpr.pacman_ubi_ptr, HEX 0
-	mpr.pacman_next_ubi_ptr, HEX 0
-	mpr.ptr_array_prioridad, HEX 0
-	mpr.temp_array, HEX 0
-/--------------------------Fin funcion mover pacman aleatoriamente
+		/Variables
+		mpr.pacman_ubi_ptr, HEX 0
+		mpr.pacman_next_ubi_ptr, HEX 0
+		mpr.ptr_array_prioridad, HEX 0
+		mpr.temp_array, HEX 0
+	/--------------------------Fin funcion mover pacman aleatoriamente
 
 //Funcion mover pacman en base a las bolitas
 movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad), HEX 0	
@@ -896,7 +1209,7 @@ movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad), HEX 0
 	Store mpb.radio
 	LoadImmi 4
 	Store mpb.ctr
-	
+		
 	mpb.while, LoadI mpb.ptr_array_prioridad
 	Store multiplicando
 	Load mpb.radio
@@ -942,7 +1255,7 @@ movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad), HEX 0
 	Subt mpb.ctr
 	Store mpb.ptr_array_prioridad
 	Jump mpb.while
-	
+		
 	/guardar valor
 	mpb.store_value, LoadI mpb.ptr_array_prioridad
 		Add mpb.pacman_ubi_ptr
@@ -953,7 +1266,7 @@ movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad), HEX 0
 			Jump mpb.incrementar
 		Store mpb.pacman_next_ubi_ptr
 		mpb.return, JumpI movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad)
-		
+			
 	/Variables
 	mpb.ctr, DEC 4
 	mpb.radio, DEC 1
@@ -1017,14 +1330,14 @@ generar_direcciones_partida, HEX 0
 	gdp.asignar_derecha, Load +1
 	Store gdp.direccion
 	Jump gdp.store_value
-	
+		
 	gdp.store_value, Load gdp.direccion
 	StoreI gdp.temp_ptr
 	Load gdp.temp_ptr
 	Add +1
 	Store gdp.temp_ptr
 	Jump inicio_ciclo_LCG
-	
+		
 	/Variables locales
 	gdp.a, DEC 17
 	gdp.c, DEC 43
@@ -1057,7 +1370,6 @@ ZERO, DEC 0
 +31, DEC 31
 
 // MAP GENERATION
-
 loadMap(), HEX 0
 LOAD OFFSET
 STORE MAP_POSITION
@@ -1500,12 +1812,12 @@ ADD ONE
 ADD ONE
 ADD ONE
 STORE MAP_POSITION
-LOAD PINKY_COLOR
+LOAD current_pinky_color
 STOREI MAP_POSITION
 LOAD MAP_POSITION
 ADD ONE
 STORE MAP_POSITION
-LOAD INKY_COLOR
+LOAD current_inky_color
 STOREI MAP_POSITION
 LOAD MAP_POSITION
 ADD ONE
@@ -1552,12 +1864,12 @@ STOREI MAP_POSITION
 LOAD MAP_POSITION
 ADD ONE
 STORE MAP_POSITION
-LOAD CLYDE_COLOR
+LOAD current_clyde_color
 STOREI MAP_POSITION
 LOAD MAP_POSITION
 ADD ONE
 STORE MAP_POSITION
-LOAD BLINKY_COLOR
+LOAD current_blinky_color
 STOREI MAP_POSITION
 LOAD MAP_POSITION
 ADD ONE

@@ -1,0 +1,70 @@
+
+// START - makeGhostsBlue()
+makeGhostsBlue(), HEX 0
+	Load tiempo
+	Store tiempo_azul_inicio
+
+    Load blue_color
+    Store PINKY_COLOR
+    StoreI pinky_pos
+
+    Load blue_color
+    Store INKY_COLOR
+    StoreI inky_pos
+
+    Load blue_color
+    Store CLYDE_COLOR
+    StoreI clyde_pos
+
+    Load blue_color
+    Store BLINKY_COLOR
+    StoreI blinky_pos
+
+    JumpI makeGhostsBlue()
+// END - makeGhostsBlue()
+
+restoreGhostColors, HEX 0
+    Load tiempo_azul_inicio
+    SkipCond 400       
+        Jump rc.check_time_passed
+    JumpI restoreGhostColors
+
+rc.check_time_passed, Load tiempo
+    Subt tiempo_azul_inicio
+    Subt TIEMPO_ESTOROIDE
+    SkipCond 000       
+        Jump rc.restore
+    JumpI restoreGhostColors
+
+	rc.restore,  Load orig_pinky_color
+	Store PINKY_COLOR
+	StoreI pinky_pos
+
+    Load orig_inky_color
+    Store INKY_COLOR
+    StoreI inky_pos
+
+    Load orig_clyde_color
+    Store CLYDE_COLOR
+    StoreI clyde_pos
+
+    Load orig_blinky_color
+    Store BLINKY_COLOR
+    StoreI blinky_pos
+
+    / Resetear tiempo_azul_inicio
+    Clear
+    Store tiempo_azul_inicio
+
+    JumpI restoreGhostColors
+
+// CONSTANTES
+TIEMPO_ESTOROIDE, DEC 32
+
+blue_color, HEX 001F
+tiempo_azul_inicio, DEC 0
+
+orig_pinky_color,  HEX 7EFB
+orig_inky_color,   HEX 03FB
+orig_clyde_color,  HEX 7EF1
+orig_blinky_color, HEX 7C00

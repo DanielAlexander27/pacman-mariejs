@@ -1,0 +1,25 @@
+// Start - division()
+// Calculates division between two integers (values should be positive)
+// The result is truncated
+division(dividend;divsor), HEX 000
+	Clear
+	Store division.result
+
+	division.while, Load division.dividend
+		Subt division.divisor
+		SkipCond 000
+			Jump division.while_cont
+		Jump division.return
+		division.while_cont, Store division.dividend
+		Load division.result
+		Add +1 
+		Store division.result
+		Jump division.while
+
+
+	division.return, JumpI division(dividend;divsor)
+
+	division.dividend, DEC 0
+	division.divisor, DEC 0
+	division.result, DEC 0
+// End - division()

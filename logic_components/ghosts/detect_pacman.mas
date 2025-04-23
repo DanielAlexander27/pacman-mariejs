@@ -1,12 +1,12 @@
 Jump main
 
-initialPos, HEX F2A
-wallPos1, HEX FFA
-wallPos2, HEX F10
-pacmanPos, HEX F3A
+initialPos, HEX F00
+wallPos1, HEX FFF
+wallPos2, HEX F04
+pacman_pos, HEX F0A
 
 main, Load PAC-MAN_COLOR
-StoreI pacmanPos
+StoreI pacman_pos
 
 Load INKY_COLOR
 StoreI initialPos
@@ -35,7 +35,7 @@ detectPacman(initialPos;ghostColor), HEX 000
 	// Check if pacman and ghost are in the same column
 	Load +16
 	Store mod.divisor
-	Load pacmanPos
+	Load pacman_pos
 	Store mod.dividend
 	Jns mod(dividend;divsor)
 	Load mod.result
@@ -49,16 +49,20 @@ detectPacman(initialPos;ghostColor), HEX 000
 	SkipCond 0C00
 		Jump dP.validateUp
 	// Check if pacman and ghost are in the same row
-	Load pacmanPos
-	Subt dP.initialPos
-	Add +15
-	
-	SkipCond 0C00 
-		Jump dP.validateRight
-	SkipCond 800
-		Jump dP.return
-	Subt +31
-	SkipCond 000
+	Load +16
+	Store division.divisor
+	Load pacman_pos
+	Store division.dividend
+	JnS division(dividend;divsor)
+	Load division.result
+	Store dP.temp
+
+	Load dP.initialPos
+	Store division.dividend
+	JnS division(dividend;divsor)
+	Load division.result
+	Subt dP.temp
+	SkipCond 0400
 		Jump dP.return
 	Jump dP.validateRight
 
@@ -70,7 +74,7 @@ detectPacman(initialPos;ghostColor), HEX 000
 	Load +1
 	Store dP.addend
 	JnS dP.while
-	
+			
 	// Loop to go to the left
 	dP.validateLeft, Load dP.initialPos
 	Store dP.prevPos
@@ -79,7 +83,7 @@ detectPacman(initialPos;ghostColor), HEX 000
 	Load -1
 	Store dP.addend
 	JnS dP.while
-	
+			
 	Jump dP.return
 
 	// Loop to go up
@@ -109,13 +113,12 @@ detectPacman(initialPos;ghostColor), HEX 000
 
 		JnS validatePos(currentPos;posToCheck)
 		Load vP.result
-		Store dP.currentPos
 		SkipCond 000
 			Jump dP.checkGhost
 		Jump dp.exitWhile
 
-		dP.checkGhost, LoadI vP.result
-			Subt dP.ghostColor
+		dP.checkGhost, Load vP.result
+			Subt dP.initialPos
 			SkipCond 0C00
 				Jump dp.exitWhile
 		// check pac-man
@@ -125,18 +128,19 @@ detectPacman(initialPos;ghostColor), HEX 000
 			Jump dp.continueWhile
 		Load dP.addend
 		Jump dp.storeResult
-		
-		dp.continueWhile, Load dP.currentPos
+				
+		dp.continueWhile, Load vP.result
 			Store dP.prevPos
 			Add dP.addend
 			Store dP.currentPos
 			Jump dP.startWhile
-		
+				
 		dp.exitWhile, JumpI dP.while	
 
 	dp.storeResult, Store dP.result
 	dP.return, JumpI detectPacman(initialPos;ghostColor)
 
+	// Variables
 	dP.temp, DEC 0
 	dP.initialPos, DEC 0
 	dP.prevPos, DEC 0
@@ -147,9 +151,50 @@ detectPacman(initialPos;ghostColor), HEX 000
 // End - detectPacman()
 
 // Start - validatePos()
+// Returns -1 in case that the validation to go is invalid. Otherwise, it
+// returns the position to go. It considers mirror effect. 
 validatePos(currentPos;posToCheck), HEX 000
 	Clear
 	Store vP.result
+
+	// Case where currentPos = OFFSET && posToCheck = (OFFSET - 1)
+	vP.firstPosition, Load vP.currentPos
+		Subt OFFSET
+		SkipCond 0400
+			Jump vP.lastPosition
+		Load vP.currentPos
+		Subt vP.posToCheck
+		Subt +1
+		SkipCond 0400	
+			Jump vP.lastPosition
+		Load +15
+		Add OFFSET
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
+	// Case where currentPos = DISPLAY_END && posToCheck = (DISPLAY_END + 1)
+	vP.lastPosition, Load vP.currentPos
+		Subt DISPLAY_END
+		SkipCond 0400
+			Jump vP.validateUp
+		Load vP.posToCheck
+		Subt vP.currentPos
+		Subt +1
+		SkipCond 0400
+			Jump vP.validateUp
+		Load DISPLAY_END
+		Subt +15
+		Store isWall.posToCheck
+		JnS isWall(postToCheck)
+		SkipCond 400
+			Jump vP.wallDetected
+		Load isWall.posToCheck
+		Jump vP.storeResult
+
 
 	vP.validateUp, Load vP.posToCheck
         Subt OFFSET
@@ -238,10 +283,11 @@ validatePos(currentPos;posToCheck), HEX 000
 		Jump vP.return
 
 	vP.return, JumpI validatePos(currentPos;posToCheck)
-	
-vP.currentPos, DEC 0
-vP.posToCheck, DEC 0
-vP.result, DEC 0
+
+	// Variables	
+	vP.currentPos, HEX 0
+	vP.posToCheck, HEX 0
+	vP.result, HEX 0
 // End - validatePos()
 
 // Start - isWall()
@@ -293,6 +339,32 @@ mod.divisor, DEC 0
 mod.result, DEC 0
 // End - mod()
 
+// Start - division()
+// Calculates division between two integers (values should be positive)
+// The result is truncated
+division(dividend;divsor), HEX 000
+	Clear
+	Store division.result
+
+	division.while, Load division.dividend
+		Subt division.divisor
+		SkipCond 000
+			Jump division.while_cont
+		Jump division.return
+		division.while_cont, Store division.dividend
+		Load division.result
+		Add +1 
+		Store division.result
+		Jump division.while
+
+
+	division.return, JumpI division(dividend;divsor)
+
+	division.dividend, DEC 0
+	division.divisor, DEC 0
+	division.result, DEC 0
+// End - division()
+
 // Constants
 OFFSET, HEX F00
 DISPLAY_END, HEX FFF
@@ -311,8 +383,3 @@ ZERO, DEC 0
 INKY_COLOR, HEX 3FB
 PAC-MAN_COLOR, HEX 7FE0
 PARED_COLOR, HEX 421B
-
-
-
-
-

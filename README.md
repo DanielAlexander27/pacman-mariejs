@@ -1,6 +1,4 @@
 # Pac-Man en Assembly (Marie.js)
-
----
 ## Lógica de Pac-Man
 
 ## Fantasmas
@@ -34,13 +32,58 @@ Este bloque de instrución empieza llamando el bloque de instrucción [detectPac
 
 Si Pac-Man no es detectado, verifica si el `target` del fantasma es distinto `-1`. En ese caso, el fantasma se mueve haciendo uso del valor de `direction`.
 
-Si no existe `target`, se calculan las posiciones disponibles (no existe pared) para dirigirse llamando al bloque de instrucción [getPosAvail()](#getPosAvail). 
+Si no existe `target`, se calculan las posiciones disponibles (no existe pared) para dirigirse llamando al bloque de instrucción [getPosAvail()](#getPosAvail)
+y validadas con [validatePos()](#valdiatePos()).
 
 Una vez generado las posiciones disponibles, se genera un número pseudoaleatorio con [random()](#random()) entre $[0,n)$, en donde $n$ es el número de posiciones disponibles.
 
+Con esto, se procede a realizar el movimiento.
+
 #### Uso de Celda Backup
-Antes de realizar el movimiento,
+Antes de realizar el movimiento hacia la próxima celda, se guarda el contenida de esta si es bolita o *power-up*. Caso contrario, el contenido almacenado es `000`.
+
+Cuando un fantasma deja una celda, restaura el valor original de esta con una condición: la celda a reestablecer no debe tener como contenido una bolita o *power-up*. 
+
+Esta lógica se aplica puesto que existen situaciones en donde 2 fantasmas están sobre la misma celda con un ítem consumible; el primero sale y restaura, pero el segundo al salir restaura con el valor vacío. 
+Aquel caso se evita con la lógia presentada.
 
 ### detectPacman()
+Devuelve el valor de dirección que el fantasma debe seguir para alcanzar a fantasma. Devuelve
+$16$, $-16$, $1$ o $-1$. Lo que significa arriba, abajo, derecha o izquierda, respectivamente. En caso de no detectar a Pac-Man, devuelve `0`.
+
+La lógica se asemeja a que el fantasmas "vea" a Pac-Man a lo largo de la fila o columna. Por tal motivo, si existen paredes entre las 2 entidades, Pac-Man no será detectado.
+
+El bloque de instrucción empieza verificando si el fantasma y Pac-Man están en la misma fila o columna, aplicando división para 16 o modulo de 16, respectivamente.
+
+En caso de estar en la misma fila o columna, realiza un iteración por todas la fila o columna hasta encontrar a Pac-Man.
+Cada celda iterada es validada con [getPosAvail()](getPosAvail()).
 
 ### getPosAvail()
+Devuelve las posiciones disponibles a las que se puede mover una entidad. Opera con una posición y un puntero, el cual apunta al array de prioridad de una entidad.
+
+### validatePos()
+Opera con la posición actual y la posición de interés a dirigirse.  En la mayoría de casos, devuelve la posición de interés misma. No obstante, en los casos del efecto espejo, calcula
+y devuelve la posición correspondiente. 
+
+Devuelve -1 si la posición de interés a dirigirse es pared.
+
+### isWall()
+Valida si dada una posición existe una pared o no.
+
+### makeGhostsBlue()
+Pinta de color azul a todos los fantasmas. Además, registro el inicio del temporizador del *power-up*.
+
+### restoreGhostColors()
+Restura los colores originales de los fantasmas si el tiempo del *power-up* finalizo. Adicional, se puede
+configurar para que restaura los colores sin validar el tiempo. Este úlitmo caso se usa cuando Pac-Man pierde una vida y 
+tiene activado el *power-up*.
+
+### reviewPositions()
+Detecta si Pac-Man y un fantasma comparten la misma lógica. En caso de que sí, se realiza la lógica correspondiente.
+
+- Si Pac-Man tiene el *power-up* activado y el fantasma está de color azul, el fantasma regresa a su posición inicial y Pac-Man obtiene 10 puntos.
+- Si Pac-Man tiene el *power-up* activada y el fantasma tiene su color original, Pac-Man pierde una vida y regresa a su posición original.
+- Si Pac-Man no tiene el *power-up*, este pierde una vida y regresa a su posición original.
+
+Adicional, valida si el fantasma está encima de una bolita o *power-up* para sumar al puntaje y restar de la cantidad total de consumibles.
+

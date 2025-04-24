@@ -447,169 +447,170 @@ movePacman(), HEX 000
 		mG.ptr_array_prioridad, DEC 0
 		mG.ghost_target, DEC -1
 
-	// Start - reviewPositions()
-	// Valida si pacman está sobre un fantasma y realiza la lógica correspondiente
-	reviewPositions(), HEX 000
-		// al llamar funcion logic se debe cargar la position original del fantasma
-		Load BLINKY_INITIAL_POS
-		Store rP.logic.initial_ghost_pos
-		Load BLINKY_COLOR
-		Store rP.logic.ghost_original_color
-		Load PTR_BLINKY_POS
-		Store rP.logic.ptr_ghost_pos
-		Load PTR_CURRENT_BLINKY_COLOR
-		Store rP.logic.ptr_ghost_current_color
-		Load PTR_BLINKY_DIRECTION
-		Store rP.logic.ptr_ghost_direction
-		Load PTR_BLINKY_TARGET
-		Store rP.logic.ptr_ghost_target
-		Load PTR_BLINKY_CELL_BACKUP
-		Store rP.logic.ptr_ghost_cell_backup
-		Jns rP.logic()
+// Start - reviewPositions()
+// Valida si pacman está sobre un fantasma y realiza la lógica correspondiente
+reviewPositions(), HEX 000
+	// al llamar funcion logic se debe cargar la position original del fantasma
+	Load BLINKY_INITIAL_POS
+	Store rP.logic.initial_ghost_pos
+	Load BLINKY_COLOR
+	Store rP.logic.ghost_original_color
+	Load PTR_BLINKY_POS
+	Store rP.logic.ptr_ghost_pos
+	Load PTR_CURRENT_BLINKY_COLOR
+	Store rP.logic.ptr_ghost_current_color
+	Load PTR_BLINKY_DIRECTION
+	Store rP.logic.ptr_ghost_direction
+	Load PTR_BLINKY_TARGET
+	Store rP.logic.ptr_ghost_target
+	Load PTR_BLINKY_CELL_BACKUP
+	Store rP.logic.ptr_ghost_cell_backup
+	Jns rP.logic()
 		
-		Load PINKY_INITIAL_POS
-		Store rP.logic.initial_ghost_pos
-		Load PINKY_COLOR
-		Store rP.logic.ghost_original_color
-		Load PTR_PINKY_POS
-		Store rP.logic.ptr_ghost_pos
-		Load PTR_CURRENT_PINKY_COLOR
-		Store rP.logic.ptr_ghost_current_color
-		Load PTR_PINKY_DIRECTION
-		Store rP.logic.ptr_ghost_direction
-		Load PTR_PINKY_TARGET
-		Store rP.logic.ptr_ghost_target
-		Load PTR_PINKY_CELL_BACKUP
-		Store rP.logic.ptr_ghost_cell_backup
-		Jns rP.logic()
+	Load PINKY_INITIAL_POS
+	Store rP.logic.initial_ghost_pos
+	Load PINKY_COLOR
+	Store rP.logic.ghost_original_color
+	Load PTR_PINKY_POS
+	Store rP.logic.ptr_ghost_pos
+	Load PTR_CURRENT_PINKY_COLOR
+	Store rP.logic.ptr_ghost_current_color
+	Load PTR_PINKY_DIRECTION
+	Store rP.logic.ptr_ghost_direction
+	Load PTR_PINKY_TARGET
+	Store rP.logic.ptr_ghost_target
+	Load PTR_PINKY_CELL_BACKUP
+	Store rP.logic.ptr_ghost_cell_backup
+	Jns rP.logic()
 
-		Load INKY_INITIAL_POS
-		Store rP.logic.initial_ghost_pos
-		Load INKY_COLOR
-		Store rP.logic.ghost_original_color
-		Load PTR_INKY_POS
-		Store rP.logic.ptr_ghost_pos
-		Load PTR_CURRENT_INKY_COLOR
-		Store rP.logic.ptr_ghost_current_color
-		Load PTR_INKY_DIRECTION
-		Store rP.logic.ptr_ghost_direction
-		Load PTR_INKY_TARGET
-		Store rP.logic.ptr_ghost_target
-		Load PTR_INKY_CELL_BACKUP
-		Store rP.logic.ptr_ghost_cell_backup
-		Jns rP.logic()
+	Load INKY_INITIAL_POS
+	Store rP.logic.initial_ghost_pos
+	Load INKY_COLOR
+	Store rP.logic.ghost_original_color
+	Load PTR_INKY_POS
+	Store rP.logic.ptr_ghost_pos
+	Load PTR_CURRENT_INKY_COLOR
+	Store rP.logic.ptr_ghost_current_color
+	Load PTR_INKY_DIRECTION
+	Store rP.logic.ptr_ghost_direction
+	Load PTR_INKY_TARGET
+	Store rP.logic.ptr_ghost_target
+	Load PTR_INKY_CELL_BACKUP
+	Store rP.logic.ptr_ghost_cell_backup
+	Jns rP.logic()
 
-		Load CLYDE_INITIAL_POS
-		Store rP.logic.initial_ghost_pos
-		Load CLYDE_COLOR
-		Store rP.logic.ghost_original_color
-		Load PTR_CLYDE_POS
-		Store rP.logic.ptr_ghost_pos
-		Load PTR_CURRENT_CLYDE_COLOR
-		Store rP.logic.ptr_ghost_current_color
-		Load PTR_CLYDE_DIRECTION
-		Store rP.logic.ptr_ghost_direction
-		Load PTR_CLYDE_TARGET
-		Store rP.logic.ptr_ghost_target
-		Load PTR_CLYDE_CELL_BACKUP
-		Store rP.logic.ptr_ghost_cell_backup
-		Jns rP.logic()
+	Load CLYDE_INITIAL_POS
+	Store rP.logic.initial_ghost_pos
+	Load CLYDE_COLOR
+	Store rP.logic.ghost_original_color
+	Load PTR_CLYDE_POS
+	Store rP.logic.ptr_ghost_pos
+	Load PTR_CURRENT_CLYDE_COLOR
+	Store rP.logic.ptr_ghost_current_color
+	Load PTR_CLYDE_DIRECTION
+	Store rP.logic.ptr_ghost_direction
+	Load PTR_CLYDE_TARGET
+	Store rP.logic.ptr_ghost_target
+	Load PTR_CLYDE_CELL_BACKUP
+	Store rP.logic.ptr_ghost_cell_backup
+	Jns rP.logic()
 			
-		rP.exit, JumpI reviewPositions()
+	rP.exit, JumpI reviewPositions()
 
-		rP.pacman_strong_has_died, Load +1
-			Store rgc.has_pacman_died
-			JnS restoreGhostColors()
-			Clear 
-			Store rgc.has_pacman_died
+	rP.pacman_strong_has_died, Load +1
+		Store rgc.has_pacman_died
+		JnS restoreGhostColors()
+		Clear 
+		Store rgc.has_pacman_died
 
-		rP.restore_pacman_original_pos, Load rP.colorToRecover
-			StoreI pacman_pos
-			Load PAC-MAN_COLOR
-			StoreI PACMAN_INITIAL_POS
-			LOAD PACMAN_INITIAL_POS
-			Store pacman_pos
-			Load pacman_lives
-			Subt +1
-			Store pacman_lives
-			Output
-			Jump rP.exit
+	rP.restore_pacman_original_pos, Load rP.colorToRecover
+		StoreI pacman_pos
+		Load PAC-MAN_COLOR
+		StoreI PACMAN_INITIAL_POS
+		LOAD PACMAN_INITIAL_POS
+		Store pacman_pos
+		Load pacman_lives
+		Subt +1
+		Store pacman_lives
+		Output
+		Jump rP.exit
 
-		// Start - rP.logic()
-		rP.logic(), HEX 000
-			LoadI rP.logic.ptr_ghost_pos
-			Subt pacman_pos
+	// Start - rP.logic()
+	rP.logic(), HEX 000
+		LoadI rP.logic.ptr_ghost_pos
+		Subt pacman_pos
 			
-			SkipCond 0400
-				Jump rP.logic.exit
+		SkipCond 0400
+			Jump rP.logic.exit
 			
-			Load rP.logic.ghost_original_color
-			Store rP.colorToRecover
+		Load rP.logic.ghost_original_color
+		Store rP.colorToRecover
 
-			Load is_pacman_strong
-			Subt +1
-			SkipCond 0400
-				Jump rP.restore_pacman_original_pos
-			LoadI rP.logic.ptr_ghost_current_color
-			Subt rP.logic.ghost_original_color
-			SkipCond 0C00
-				Jump rP.pacman_strong_has_died
-			// The ghost is moved to its original position
-			Load rP.logic.initial_ghost_pos
-			StoreI rP.logic.ptr_ghost_pos
-			Load rP.logic.ghost_original_color
-			StoreI rP.logic.initial_ghost_pos
-			// Add points for eating the ghost
-			Load puntos
-			ADD +10
-			Store puntos
-			Output
-			// Validation if the ghost is above of a BOLITA to add the point
-			LoadI rP.logic.ptr_ghost_cell_backup
-			Subt BOLITA_COLOR
-			SkipCond 0400
-				Jump rP.logic.check_esteroide
-			Load puntos
-			Add +1 
-			Store puntos
-			Load CONSUMIBLES_TOTALES
-			Subt +1
-			Store CONSUMIBLES_TOTALES
+		Load is_pacman_strong
+		Subt +1
+		SkipCond 0400
+			Jump rP.restore_pacman_original_pos
+		LoadI rP.logic.ptr_ghost_current_color
+		Subt rP.logic.ghost_original_color
+		SkipCond 0C00
+			Jump rP.pacman_strong_has_died
+		// The ghost is moved to its original position
+		Load rP.logic.initial_ghost_pos
+		StoreI rP.logic.ptr_ghost_pos
+		Load rP.logic.ghost_original_color
+		StoreI rP.logic.initial_ghost_pos
+		// Add points for eating the ghost
+		Load puntos
+		ADD +10
+		Store puntos
+		Output
+		// Validation if the ghost is above of a BOLITA to add the point
+		LoadI rP.logic.ptr_ghost_cell_backup
+		Subt BOLITA_COLOR
+		SkipCond 0400
+		Jump rP.logic.check_esteroide
+		Load puntos
+		Add +1 
+		Store puntos
+		Load CONSUMIBLES_TOTALES
+		Subt +1
+		Store CONSUMIBLES_TOTALES
 
-			rP.logic.check_esteroide, LoadI rP.logic.ptr_ghost_cell_backup
-			Subt ESTEROIDE_COLOR
-			SkipCond 0400
-				Jump rP.logic.restore
-					Load CONSUMIBLES_TOTALES
-			Subt +1
-			Store CONSUMIBLES_TOTALES
+		rP.logic.check_esteroide, LoadI rP.logic.ptr_ghost_cell_backup
+		Subt ESTEROIDE_COLOR
+		SkipCond 0400
+			Jump rP.logic.restore
+				Load CONSUMIBLES_TOTALES
+		Jns makeGhostsBlue()
+		Subt +1
+		Store CONSUMIBLES_TOTALES
 
-			Output
-			// The ghost values are restored.
-			rP.logic.restore, Load rP.logic.ghost_original_color
-			StoreI rP.logic.ptr_ghost_current_color
-			Clear
-			StoreI rP.logic.ptr_ghost_direction
-			StoreI rP.logic.ptr_ghost_cell_backup
-			Load -1
-			StoreI rP.logic.ptr_ghost_target
+		Output
+		// The ghost values are restored.
+		rP.logic.restore, Load rP.logic.ghost_original_color
+		StoreI rP.logic.ptr_ghost_current_color
+		Clear
+		StoreI rP.logic.ptr_ghost_direction
+		StoreI rP.logic.ptr_ghost_cell_backup
+		Load -1
+		StoreI rP.logic.ptr_ghost_target
 
-			rP.logic.exit, JumpI rP.logic()
+		rP.logic.exit, JumpI rP.logic()
 			
-			// Variables
-			rP.logic.initial_ghost_pos, DEC 0
-			rP.logic.ghost_original_color, DEC 0
-			rP.logic.ptr_ghost_pos, HEX 0
-			rP.logic.ptr_ghost_current_color, HEX 0
-			rP.logic.ptr_ghost_direction, HEX 0
-			rP.logic.ptr_ghost_target, HEX 0
-			rP.logic.ptr_ghost_cell_backup, HEX 0
-		// END - rP.logic()
+	// Variables
+	rP.logic.initial_ghost_pos, DEC 0
+	rP.logic.ghost_original_color, DEC 0
+	rP.logic.ptr_ghost_pos, HEX 0
+	rP.logic.ptr_ghost_current_color, HEX 0
+	rP.logic.ptr_ghost_direction, HEX 0
+	rP.logic.ptr_ghost_target, HEX 0
+	rP.logic.ptr_ghost_cell_backup, HEX 0
+// END - rP.logic()
 
-		// Variables
-		rP.colorToRecover, HEX 0
-		rP.ghostOriginalPos, Hex 0
-	// End - reviewPositions()
+	// Variables
+	rP.colorToRecover, HEX 0
+	rP.ghostOriginalPos, Hex 0
+// End - reviewPositions()
 
 
 // Start - detectPacman()
@@ -743,236 +744,236 @@ detectPacman(initialPos;ghostColor), HEX 000
 // End - detectPacman()
 
 
-		// START - makeGhostsBlue()
-		makeGhostsBlue(), HEX 0
-			LoadImmi 1
-			Store is_pacman_strong
-			Load tiempo
-			Store rgc.tiempo_azul_inicio
+// START - makeGhostsBlue()
+makeGhostsBlue(), HEX 0
+	LoadImmi 1
+	Store is_pacman_strong
+	Load tiempo
+	Store rgc.tiempo_azul_inicio
 
-			Load BLUE_COLOR
-			Store current_pinky_color
-			StoreI pinky_pos
+	Load BLUE_COLOR
+	Store current_pinky_color
+	StoreI pinky_pos
 
-			Load BLUE_COLOR
-			Store current_inky_color
-			StoreI inky_pos
+	Load BLUE_COLOR
+	Store current_inky_color
+	StoreI inky_pos
 
-			Load BLUE_COLOR
-			Store current_clyde_color
-			StoreI clyde_pos
+	Load BLUE_COLOR
+	Store current_clyde_color
+	StoreI clyde_pos
 
-			Load BLUE_COLOR
-			Store current_blinky_color
-			StoreI blinky_pos
+	Load BLUE_COLOR
+	Store current_blinky_color
+	StoreI blinky_pos
 
-			JumpI makeGhostsBlue()
-		// END - makeGhostsBlue()
+	JumpI makeGhostsBlue()
+// END - makeGhostsBlue()
 
-		// START - restoreGhostColors()
-		restoreGhostColors(), HEX 0
-			Load rgc.has_pacman_died
-			Subt +1
-			SkipCond 0C00
-				Jump rgc.restore
-			Load rgc.tiempo_azul_inicio
-			SkipCond 400       
-				Jump rgc.check_time_passed
-			JumpI restoreGhostColors()
+// START - restoreGhostColors()
+restoreGhostColors(), HEX 0
+	Load rgc.has_pacman_died
+	Subt +1
+	SkipCond 0C00
+		Jump rgc.restore
+	Load rgc.tiempo_azul_inicio
+	SkipCond 400       
+		Jump rgc.check_time_passed
+	JumpI restoreGhostColors()
 
-			rgc.check_time_passed, Load tiempo
-			Subt rgc.tiempo_azul_inicio
-			Subt TIEMPO_ESTOROIDE
-			SkipCond 000       
-				Jump rgc.restore
-			JumpI restoreGhostColors()
+	rgc.check_time_passed, Load tiempo
+	Subt rgc.tiempo_azul_inicio
+	Subt TIEMPO_ESTOROIDE
+	SkipCond 000       
+		Jump rgc.restore
+	JumpI restoreGhostColors()
 
-			rgc.restore, Load PINKY_COLOR
-			Store current_pinky_color
-			StoreI pinky_pos
+	rgc.restore, Load PINKY_COLOR
+	Store current_pinky_color
+	StoreI pinky_pos
 
-			Load INKY_COLOR
-			Store current_inky_color
-			StoreI inky_pos
+	Load INKY_COLOR
+	Store current_inky_color
+	StoreI inky_pos
 
-			Load CLYDE_COLOR
-			Store current_clyde_color
-			StoreI clyde_pos
+	Load CLYDE_COLOR
+	Store current_clyde_color
+	StoreI clyde_pos
 
-			Load BLINKY_COLOR
-			Store current_blinky_color
-			StoreI blinky_pos
+	Load BLINKY_COLOR
+	Store current_blinky_color
+	StoreI blinky_pos
 
-			// Resetear tiempo_azul_inicio
-			Clear
-			Store rgc.tiempo_azul_inicio
-			Store is_pacman_strong
+	// Resetear tiempo_azul_inicio
+	Clear
+	Store rgc.tiempo_azul_inicio
+	Store is_pacman_strong
 
-			JumpI restoreGhostColors()
+	JumpI restoreGhostColors()
 
-			// Variables
-			rgc.has_pacman_died, DEC 0
+	// Variables
+	rgc.has_pacman_died, DEC 0
 
-			rgc.tiempo_azul_inicio, DEC 0
-		// END - restoreGhostColors()
+	rgc.tiempo_azul_inicio, DEC 0
+// END - restoreGhostColors()
 
 
-		// -------------------- START - get_pos_avail() ------------------------
-		// Funcion para obtener posiciones disponibles de una entidad
-		// Devuelve el puntero del array con las posiciones disponibles y también el
-		// tamaño de este
+// -------------------- START - get_pos_avail() ------------------------
+// Funcion para obtener posiciones disponibles de una entidad
+// Devuelve el puntero del array con las posiciones disponibles y también el
+// tamaño de este
 
-		getPosAvail(pos_inicial;ptr_array_prioridad), HEX 0
-			// Initializae ptr to point to result_array
-			Jump gPA.result_array
-			// Set initial value for temp_ptr
-			gPA.main, Load gPA.ptr_result_array
-			Store gPA.temp_ptr
-			// Set initial value for counter
-			LoadImmi 4
-			Store gPA.ctr
-			// Set initial value for len_array
-			Clear
-			Store gPA.len_array
+getPosAvail(pos_inicial;ptr_array_prioridad), HEX 0
+	// Initialize ptr to point to result_array
+	Jump gPA.result_array
+	// Set initial value for temp_ptr
+	gPA.main, Load gPA.ptr_result_array
+	Store gPA.temp_ptr
+	// Set initial value for counter
+	LoadImmi 4
+	Store gPA.ctr
+	// Set initial value for len_array
+	Clear
+	Store gPA.len_array
+	
+	Load gPA.pos_inicial
+	Store vP.currentPos
 			
-			Load gPA.pos_inicial
-			Store vP.currentPos
+	gPA.while, LoadI gPA.ptr_array_prioridad
+	Add gPA.pos_inicial
+	Store vP.posToCheck
+	JnS validatePos(currentPos;posToCheck)
+	SkipCond 000
+		Jump gPA.store_value
+	gPA.incrementar, Load gPA.ptr_array_prioridad
+	Add +1
+	Store gPA.ptr_array_prioridad
+	Load gPA.ctr
+	Subt +1
+	Store gPA.ctr
+	SkipCond 400
+		Jump gPA.while
+	gPA.return, JumpI getPosAvail(pos_inicial;ptr_array_prioridad)
 			
-			gPA.while, LoadI gPA.ptr_array_prioridad
-			Add gPA.pos_inicial
-			Store vP.posToCheck
-			JnS validatePos(currentPos;posToCheck)
-			SkipCond 000
-				Jump gPA.store_value
-			gPA.incrementar, Load gPA.ptr_array_prioridad
-			Add +1
-			Store gPA.ptr_array_prioridad
-			Load gPA.ctr
-			Subt +1
-			Store gPA.ctr
-			SkipCond 400
-				Jump gPA.while
-			gPA.return, JumpI getPosAvail(pos_inicial;ptr_array_prioridad)
-			
-			/guardar valor
-			gPA.store_value, Load vP.result
-				StoreI gPA.temp_ptr
-				Load gPA.temp_ptr
-				Add +1
-				Store gPA.temp_ptr
-				Load gPA.len_array
-				Add +1
-				Store gPA.len_array
-				Jump gPA.incrementar
+	/guardar valor
+	gPA.store_value, Load vP.result
+		StoreI gPA.temp_ptr
+		Load gPA.temp_ptr
+		Add +1
+		Store gPA.temp_ptr
+		Load gPA.len_array
+		Add +1
+		Store gPA.len_array
+		Jump gPA.incrementar
 				
-			// Variables
-			gPA.ctr, DEC 4
-			gPA.len_array, DEC 0
-			gPA.pos_inicial, DEC 0
-			gPA.ptr_array_prioridad, HEX 0
-			gPA.temp_ptr, HEX 0
+	// Variables
+	gPA.ctr, DEC 4
+	gPA.len_array, DEC 0
+	gPA.pos_inicial, DEC 0
+	gPA.ptr_array_prioridad, HEX 0
+	gPA.temp_ptr, HEX 0
 
-			// Trick to store the ptr position during runtime
-			gPA.result_array, JnS gPA.ptr_result_array
-				DEC 0
-				DEC 0
-				DEC 0
-				DEC 0
-			gPA.ptr_result_array, HEX 0
-				Jump gPA.main
-		// -------------------- END - get_pos_avail() ------------------------
+	// Trick to store the ptr position during runtime
+	gPA.result_array, JnS gPA.ptr_result_array
+		DEC 0
+		DEC 0
+		DEC 0
+		DEC 0
+	gPA.ptr_result_array, HEX 0
+		Jump gPA.main
+// -------------------- END - get_pos_avail() ------------------------
 
-		//Funcion calcular aleatoriamente en las posiciones disponibles
-		random(num_pos_avail), HEX 0
-			Load rnd.a
-			Store multiplicando
-			Load rnd.semilla
-			Store multiplicador
-			JnS multiplicar
-			Load producto
-			Add rnd.c
-			Store mod.dividend
-			Load rnd.m
-			Store mod.divisor
-			JnS mod(dividend;divsor)
-			Load mod.result
-			Store rnd.semilla
-			Store mod.dividend
-			Load rnd.num_pos_avail
-			Store mod.divisor
-			JnS mod(dividend;divsor)
-			Load mod.result
-			Store rnd.result
-			JumpI random(num_pos_avail)
+//Funcion calcular aleatoriamente en las posiciones disponibles
+random(num_pos_avail), HEX 0
+	Load rnd.a
+	Store multiplicando
+	Load rnd.semilla
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add rnd.c
+	Store mod.dividend
+	Load rnd.m
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store rnd.semilla
+	Store mod.dividend
+	Load rnd.num_pos_avail
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store rnd.result
+	JumpI random(num_pos_avail)
 
-			/Variables
-			rnd.a, DEC 17
-			rnd.c, DEC 43
-			rnd.m, DEC 500
-			rnd.num_pos_avail, DEC -1
-			rnd.result, DEC -1
-			rnd.semilla, DEC 103
-		/------------------Fin funcion calcular aleatoriamente en las posiciones disponibles -------------------------
+	/Variables
+	rnd.a, DEC 17
+	rnd.c, DEC 43
+	rnd.m, DEC 500
+	rnd.num_pos_avail, DEC -1
+	rnd.result, DEC -1
+	rnd.semilla, DEC 103
+/------------------Fin funcion calcular aleatoriamente en las posiciones disponibles -------------------------
 
-		/Inicio funcion para multiplicar
-		multiplicar, HEX 0
-			Clear
-			Store producto
-			Store neg_flag
-			/Comprobar si un numero es negativo
-			Load multiplicando
-			SkipCond 000
-			Jump comprobar_multiplicador
-			Load neg_flag
-			Add +1
-			Store neg_flag
-			Load multiplicando
-			Store abs.num
-			JnS abs(num)
-			Load abs.num
-			Store multiplicando
+/Inicio funcion para multiplicar
+multiplicar, HEX 0
+	Clear
+	Store producto
+	Store neg_flag
+	/Comprobar si un numero es negativo
+	Load multiplicando
+	SkipCond 000
+	Jump comprobar_multiplicador
+	Load neg_flag
+	Add +1
+	Store neg_flag
+	Load multiplicando
+	Store abs.num
+	JnS abs(num)
+	Load abs.num
+	Store multiplicando
 			
-			comprobar_multiplicador, Load multiplicador
-			SkipCond 000
-			Jump calc_mult
-			Load neg_flag
-			Add +1
-			Store neg_flag
-			Load multiplicador
-			Store abs.num
-			JnS abs(num)
-			Load abs.num
-			Store multiplicador
+	comprobar_multiplicador, Load multiplicador
+	SkipCond 000
+	Jump calc_mult
+	Load neg_flag
+	Add +1
+	Store neg_flag
+	Load multiplicador
+	Store abs.num
+	JnS abs(num)
+	Load abs.num
+	Store multiplicador
 
-			calc_mult, Load multiplicador
-			SkipCond 400
-			Jump mult
+	calc_mult, Load multiplicador
+	SkipCond 400
+	Jump mult
+	JumpI multiplicar
+	mult, Load producto
+		Add multiplicando
+		Store producto
+		Load multiplicador
+		Subt +1
+		Store multiplicador
+		SkipCond 400
+		Jump mult
+		Load neg_flag
+		Subt +1
+		SkipCond 400
 			JumpI multiplicar
-			mult, Load producto
-				Add multiplicando
-				Store producto
-				Load multiplicador
-				Subt +1
-				Store multiplicador
-				SkipCond 400
-				Jump mult
-				Load neg_flag
-				Subt +1
-				SkipCond 400
-					JumpI multiplicar
-				Jump convertir_negativo
+		Jump convertir_negativo
 
-			convertir_negativo, Load producto
-			Subt producto
-			Subt producto
-			Store producto
-			JumpI multiplicar
+	convertir_negativo, Load producto
+	Subt producto
+	Subt producto
+	Store producto
+	JumpI multiplicar
 			
-			/Variables locales
-			multiplicador, DEC 0
-			multiplicando, DEC 0
-			producto, DEC 0
-			neg_flag, DEC 0
+	/Variables locales
+	multiplicador, DEC 0
+	multiplicando, DEC 0
+	producto, DEC 0
+	neg_flag, DEC 0
 /-----------------Fin funcion para multiplicar-----------------------
 
 /Funcion para calcular el valor absoluto
@@ -1039,7 +1040,6 @@ division(dividend;divsor), HEX 000
 	division.divisor, DEC 0
 	division.result, DEC 0
 // End - division()
-
 
 // Start - validatePos()
 // Returns -1 in case that the validation to go is invalid. Otherwise, it
@@ -1181,113 +1181,114 @@ validatePos(currentPos;posToCheck), HEX 000
 	vP.result, HEX 0
 // End - validatePos()
 
-		// Start - isWall()
-		// Return 1 if there is a wall and 0 if there is no wall.
-		isWall(postToCheck), hex 000
-			Load -1
-			Store isWall.result
+// Start - isWall()
+// Return 1 if there is a wall and 0 if there is no wall.
+isWall(postToCheck), hex 000
+	Load -1
+	Store isWall.result
 
-			LoadI isWall.posToCheck
-			Subt PARED_COLOR
-			SkipCond 0C00
-				Jump isWall.wallDetected
-			Jump isWall.noWallDetected
+	LoadI isWall.posToCheck
+	Subt PARED_COLOR
+	SkipCond 0C00
+		Jump isWall.wallDetected
+	Jump isWall.noWallDetected
 
-			isWall.wallDetected, Load +1
-				Store isWall.result
-				Jump isWall.return
+	isWall.wallDetected, Load +1
+		Store isWall.result
+		Jump isWall.return
 			
-			isWall.noWallDetected, Load ZERO
-				Store isWall.result
+	isWall.noWallDetected, Load ZERO
+		Store isWall.result
 
-			isWall.return, JumpI isWall(postToCheck)
+	isWall.return, JumpI isWall(postToCheck)
+
+	// Variables
+	isWall.posToCheck, DEC 0
+	isWall.result, DEC -1
+// End - isWall()
+
+/Inicio funcion generar direcciones aleatorias que serviran para toda la partida
+generar_direcciones(semilla), HEX 0
+	Jump gd.array_direcciones
+	gd.main, Load gd.ptr_array_direcciones
+	Store gd.temp_ptr
+	Load gd.semilla
+	Store gd.semilla_base
+	LoadImmi 4
+	Store gd.ctr_generador
 			
-		isWall.posToCheck, DEC 0
-		isWall.result, DEC -1
-		// End - isWall()
+	gd.inicio_ciclo_LCG, Load gd.ctr_generador
+	Subt +1
+	Store gd.ctr_generador
+	SkipCond 000
+	Jump gd.calculo_numero_aleatorio
+	JumpI generar_direcciones(semilla)
+	gd.calculo_numero_aleatorio, Load gd.a
+	Store multiplicando
+	Load gd.semilla_base
+	Store multiplicador
+	JnS multiplicar
+	Load producto
+	Add gd.c
+	Store mod.dividend
+	Load gd.m
+	Store mod.divisor
+	JnS mod(dividend;divsor)
+	Load mod.result
+	Store gd.semilla_base
+	/De acuerdo al numero se asigna las direcciones por convencion
+	Load gd.semilla_base
+	SkipCond 400
+		Jump gd.verificar_izquierda
+	Load -16
+	Store gd.direccion
+	Jump gd.store_value
 
-		/Inicio funcion generar direcciones aleatorias que serviran para toda la partida
-		generar_direcciones(semilla), HEX 0
-			Jump gd.array_direcciones
-			gd.main, Load gd.ptr_array_direcciones
-			Store gd.temp_ptr
-			Load gd.semilla
-			Store gd.semilla_base
-			LoadImmi 4
-			Store gd.ctr_generador
+	gd.verificar_izquierda, Load gd.semilla_base
+	Subt +1
+	SkipCond 400
+		Jump gd.verificar_abajo
+	Load -1
+	Store gd.direccion
+	Jump gd.store_value
+
+	gd.verificar_abajo, Load gd.semilla_base
+	Subt +1
+	Subt +1
+	SkipCond 400
+		Jump gd.asignar_derecha
+	Load +16
+	Store gd.direccion
+	Jump gd.store_value
+
+	gd.asignar_derecha, Load +1
+	Store gd.direccion
+	Jump gd.store_value
+	
+	gd.store_value, Load gd.direccion
+	StoreI gd.temp_ptr
+	Load gd.temp_ptr
+	Add +1
+	Store gd.temp_ptr
+	Jump gd.inicio_ciclo_LCG
 			
-			gd.inicio_ciclo_LCG, Load gd.ctr_generador
-			Subt +1
-			Store gd.ctr_generador
-			SkipCond 000
-			Jump gd.calculo_numero_aleatorio
-			JumpI generar_direcciones(semilla)
-			gd.calculo_numero_aleatorio, Load gd.a
-			Store multiplicando
-			Load gd.semilla_base
-			Store multiplicador
-			JnS multiplicar
-			Load producto
-			Add gd.c
-			Store mod.dividend
-			Load gd.m
-			Store mod.divisor
-			JnS mod(dividend;divsor)
-			Load mod.result
-			Store gd.semilla_base
-			/De acuerdo al numero se asigna las direcciones por convencion
-			Load gd.semilla_base
-			SkipCond 400
-				Jump gd.verificar_izquierda
-			Load -16
-			Store gd.direccion
-			Jump gd.store_value
-
-			gd.verificar_izquierda, Load gd.semilla_base
-			Subt +1
-			SkipCond 400
-				Jump gd.verificar_abajo
-			Load -1
-			Store gd.direccion
-			Jump gd.store_value
-
-			gd.verificar_abajo, Load gd.semilla_base
-			Subt +1
-			Subt +1
-			SkipCond 400
-				Jump gd.asignar_derecha
-			Load +16
-			Store gd.direccion
-			Jump gd.store_value
-
-			gd.asignar_derecha, Load +1
-			Store gd.direccion
-			Jump gd.store_value
-			
-			gd.store_value, Load gd.direccion
-			StoreI gd.temp_ptr
-			Load gd.temp_ptr
-			Add +1
-			Store gd.temp_ptr
-			Jump gd.inicio_ciclo_LCG
-			
-			/Variables locales
-			gd.a, DEC 17
-			gd.c, DEC 43
-			gd.m, DEC 4
-			gd.direccion, DEC 0
-			gd.semilla_base, DEC 3
-			gd.semilla, DEC 0
-			gd.ctr_generador, DEC 4
-			gd.temp_ptr, HEX 0
-			gd.array_direcciones, JnS gd.ptr_array_direcciones
-				DEC 0
-				DEC 0
-				DEC 0
-				DEC 0
-			gd.ptr_array_direcciones, HEX 0
-			Jump gd.main
-		/------------------------Fin funcion generar direcciones aleatorias que serviran para toda la partida-----------------
+	/Variables locales
+	gd.a, DEC 17
+	gd.c, DEC 43
+	gd.m, DEC 4
+	gd.direccion, DEC 0
+	gd.semilla_base, DEC 3
+	gd.semilla, DEC 0
+	gd.ctr_generador, DEC 4
+	gd.temp_ptr, HEX 0
+	gd.array_direcciones, JnS gd.ptr_array_direcciones
+		DEC 0
+		DEC 0
+		DEC 0
+		DEC 0
+	gd.ptr_array_direcciones, HEX 0
+	Jump gd.main
+/------------------------Fin funcion generar direcciones aleatorias que serviran para toda la partida-----------------
 
 //Funcion mover pacman aleatoriamente
 movimiento_pacman_rand(pos_pacman), HEX 0

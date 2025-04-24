@@ -1,19 +1,18 @@
 # Pac-Man en Assembly (Marie.js)
 ## Lógica de Pac-Man
 
+El movimiento de pacman se basa en tres comprobaciones:
+1. Detectar bolitas o esteroides que esten cerca en un radio de 3 bloques y se mueven en base a un array de direcciones generado al principio de cada partida.
+2. Si no hay bolitas cerca en un radio de 3 bloques, Pacman detecta en un mismo radio de 3 si hay fantasmas. Si hay fantasmas y no tiene un esteroide comido, debe ir en dirección contraria a donde esta el fantasma. Si si tiene un esteroide comido, le sigue al fantasma.
+3. Si no hay ni fantasmas ni consumibles en un radio de 3, se mueve aleatoriamente.
+
 ## Fantasmas
 ### Lógica
 Los fantasmas operan según el siguiente sistema de prioridad:
 1. Detectar a Pac-Man y dirigirse hacia este. 
 2. En caso de no encontrar a Pac-Man o de haber llegado a la celda en donde fue visto por última vez, aplicar movimiento pseudoaleatorio.
 
-### Lógica Pacman
 Para mover a un fantasma, se ejecuta el bloque de instrucción [moveGhost()](#moveGhost()). 
-
-El movimiento de pacman se basa en tres comprobaciones:
-1. Detectar bolitas o esteroides que esten cerca en un radio de 3 bloques y se mueven en base a un array de direcciones generado al principio de cada partida.
-2. Si no hay bolitas cerca en un radio de 3 bloques, Pacman detecta en un mismo radio de 3 si hay fantasmas. Si hay fantasmas y no tiene un esteroide comido, debe ir en dirección contraria a donde esta el fantasma. Si si tiene un esteroide comido, le sigue al fantasma.
-3. Si no hay ni fantasmas ni consumibles en un radio de 3, se mueve aleatoriamente.
 
 ### Variables Asociadas
 Cada fantasma, tiene asociado las siguientes variables:

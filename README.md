@@ -105,13 +105,24 @@ la siguiente dirección se pasa a evaluar `movimiento_pacman_fantasmas(pacman_po
 `puntos`. Si la función de los fantasmas devuelve `-1`, se pasa a `movimiento_pacman_rand(pos_pacman)` que genera una dirección aleatoria.
 
 ### **movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad)**
-Esta función lo que recibe es un puntero al inicio de un arreglo y la posición de Pacman. Lo que hace es, en base al radio y al array de
-prioridades, va buscando si hay bolitas o esteroides en esas posiciones, todo esto usando la función `validatePos()`.
+Esta función lo que recibe es un puntero al inicio de un arreglo y la posición de Pacman. Primero se empieza con un radio de 1. Dentro de un bucle `for` se verifica en
+base al arreglo de prioridades. Por ejemplo, si la primera dirección del arreglo es arriba, se le pasa a la función `validatePos()` la posición actual
+de Pacman y también hacia donde se quiere mover, en este caso sería la posición de Pacman menos 16. Después el resultado de `validatePos()` se verifica si es distinto de `-1`. Si lo
+es, quiere decir que sí puede moverse. Por ende, se pasa a verificar si en esa posición hay una bolita o esteroide, apoyándose en los colores. Si esta última condición se cumple,
+se pasa a guardar el valor en `mpb.pacman_next_ubi_ptr` y se retorna. De no ser así, se incrementa el puntero del array para seguir con la siguiente dirección y se realiza lo mismo.
+En caso de que se acaben las direcciones, se aumenta el radio y el puntero vuelve al inicio. Esta vez, primero se mueve, por ejemplo, para arriba y guarda esa posición en
+`vP.currentPos`. Entonces, en la siguiente iteración, al `vP.currentPos` se le vuelve a sumar para ir arriba. Así se verifica para dos posiciones. Esto se continúa haciendo hasta que
+se exceda el límite de radio que es 3 (el valor del radio se puede ajustar) y retorna `-1`.
 
 ### **movimiento_pacman_fantasmas(pacman_pos;ptr_array_prioridad;ptr_fantasma_pos)**
-De manera muy similar a la función de buscar bolitas, esta función recibe la posición de Pacman, el puntero al inicio del array de las prioridades y
-los punteros a las direcciones de Pacman. De igual forma, empieza a iterar en base al radio y a las prioridades para ir buscando fantasmas; si los encuentra, verifica
-si tiene el efecto esteroide para saber si debe ir en la dirección contraria o en la misma dirección.
+Esta función también recibe un puntero al inicio de un arreglo, la posición actual de Pacman y el puntero a las posiciones de los fantasmas. Comienza explorando con un radio de 1. 
+Mediante un bucle for y basándose en el arreglo de prioridades (por ejemplo, la primera dirección es abajo), se calcula la posible siguiente posición sumando 16 a la posición de 
+Pacman para "abajo". Se llama a `validatePos()` con la posición actual y la que se quiere verificar. Si `validatePos()` no retorna `-1` indicando un movimiento válido, se verifica 
+si en esa posición hay un fantasma, usando los punteros de las ubicaciones de los fantasmas. De encontrarla, se guarda esta posición en `mpf.pacman_next_ubi_ptr` y la función termina. 
+Si no se encuentra en la dirección actual, se avanza a la siguiente dirección en el arreglo y se repite el proceso. Si se agotan las direcciones del radio actual, se incrementa el radio 
+y el puntero de direcciones vuelve al inicio. Para radios mayores, se calcula la posición potencial aplicando el movimiento direccional múltiples veces 
+(por ejemplo, dos veces "arriba" para radio 2), guardando las posiciones intermedias temporalmente en `vP.currentPos`. Esto permite verificar posiciones a mayor distancia en esa 
+dirección. El proceso continúa incrementando el radio hasta alcanzar el límite de 3 (ajustable). Si no se encuentra ningun fantasma dentro de este radio máximo, la función retorna -1.
 
 ### **movimiento_pacman_rand(pos_pacman)**
 Esta función, por el contrario, lo que recibe es solo la posición de Pacman. Lo que hace es usar la función

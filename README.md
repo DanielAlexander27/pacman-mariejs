@@ -1,4 +1,13 @@
 # Pac-Man en Assembly (Marie.js)
+
+## Requisitos
+- El código funciona en MARIE.js
+
+## Estrucutra del Repositorio
+El videojuego está en `main/main.mas`. Existen diseños de mapas en `maps`. En la carpeta
+`logic_components` están los bloques de lógicas separados. Cada archivo tiene la lógica principal
+con el código de bloques de instrucciones que deben ser usados por la lógica principal.
+
 ## Lógica de Pac-Man
 
 El movimiento de pacman se basa en tres comprobaciones:

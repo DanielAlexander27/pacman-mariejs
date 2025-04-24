@@ -7,6 +7,7 @@ Los fantasmas operan según el siguiente sistema de prioridad:
 1. Detectar a Pac-Man y dirigirse hacia este. 
 2. En caso de no encontrar a Pac-Man o de haber llegado a la celda en donde fue visto por última vez, aplicar movimiento pseudoaleatorio.
 
+### Lógica Pacman
 Para mover a un fantasma, se ejecuta el bloque de instrucción [moveGhost()](#moveGhost()). 
 
 El movimiento de pacman se basa en tres comprobaciones:
@@ -91,3 +92,36 @@ Detecta si Pac-Man y un fantasma comparten la misma lógica. En caso de que sí,
 - Si Pac-Man no tiene el *power-up*, este pierde una vida y regresa a su posición original.
 
 Adicional, valida si el fantasma está encima de una bolita o *power-up* para sumar al puntaje y restar de la cantidad total de consumibles.
+
+### **movePacman()**
+Inicia con la siguiente instrucción:
+```
+movePacman()
+```
+
+Este bloque, encargado del movimiento de Pacman, inicia guardando las variables necesarias que utilizarán las siguientes funciones. Se guardan
+el puntero donde están las direcciones de la partida y las posiciones de Pacman. Después se hace un llamado a la función
+`movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad)`. Si detecta bolitas, la función retorna la dirección; si no, retorna `-1`. Si es `-1`,
+la siguiente dirección se pasa a evaluar `movimiento_pacman_fantasmas(pacman_pos;ptr_array_prioridad;ptr_fantasma_pos)`; si no es `-1`, se pasa a sumar
+`puntos`. Si la función de los fantasmas devuelve `-1`, se pasa a `movimiento_pacman_rand(pos_pacman)` que genera una dirección aleatoria.
+
+### **movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad)**
+Esta función lo que recibe es un puntero al inicio de un arreglo y la posición de Pacman. Lo que hace es, en base al radio y al array de
+prioridades, va buscando si hay bolitas o esteroides en esas posiciones, todo esto usando la función `validatePos()`.
+
+### **movimiento_pacman_fantasmas(pacman_pos;ptr_array_prioridad;ptr_fantasma_pos)**
+De manera muy similar a la función de buscar bolitas, esta función recibe la posición de Pacman, el puntero al inicio del array de las prioridades y
+los punteros a las direcciones de Pacman. De igual forma, empieza a iterar en base al radio y a las prioridades para ir buscando fantasmas; si los encuentra, verifica
+si tiene el efecto esteroide para saber si debe ir en la dirección contraria o en la misma dirección.
+
+### **movimiento_pacman_rand(pos_pacman)**
+Esta función, por el contrario, lo que recibe es solo la posición de Pacman. Lo que hace es usar la función
+`generar_direcciones(semilla)` para obtener un array de prioridades diferentes y tratar de que el movimiento sea más aleatorio.
+Una vez obtenido el puntero a ese nuevo arreglo de direcciones, se usa la función `getPosAvail()` donde indicará en qué
+direcciones se puede mover Pacman y se elige una posición aleatoria usando la función `random(num_pos_avail)`.
+
+### **random(num_pos_avail)**
+Se usa el algoritmo de Linear Congruential Generator para generar un número aleatorio de acuerdo al número de posiciones disponibles.
+
+### **generar_direcciones(semilla)**
+Recibe un número para usarlo como semilla y genera un array de 4 direcciones usando Linear Congruential Generator.

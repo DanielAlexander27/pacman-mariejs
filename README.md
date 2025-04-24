@@ -9,6 +9,11 @@ Los fantasmas operan según el siguiente sistema de prioridad:
 
 Para mover a un fantasma, se ejecuta el bloque de instrucción [moveGhost()](#moveGhost()). 
 
+El movimiento de pacman se basa en tres comprobaciones:
+1. Detectar bolitas o esteroides que esten cerca en un radio de 3 bloques y se mueven en base a un array de direcciones generado al principio de cada partida.
+2. Si no hay bolitas cerca en un radio de 3 bloques, Pacman detecta en un mismo radio de 3 si hay fantasmas. Si hay fantasmas y no tiene un esteroide comido, debe ir en dirección contraria a donde esta el fantasma. Si si tiene un esteroide comido, le sigue al fantasma.
+3. Si no hay ni fantasmas ni consumibles en un radio de 3, se mueve aleatoriamente.
+
 ### Variables Asociadas
 Cada fantasma, tiene asociado las siguientes variables:
 - **Color original**. Valor constante. Representa el color original del fantasma.
@@ -86,4 +91,3 @@ Detecta si Pac-Man y un fantasma comparten la misma lógica. En caso de que sí,
 - Si Pac-Man no tiene el *power-up*, este pierde una vida y regresa a su posición original.
 
 Adicional, valida si el fantasma está encima de una bolita o *power-up* para sumar al puntaje y restar de la cantidad total de consumibles.
-

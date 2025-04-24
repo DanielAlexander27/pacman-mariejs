@@ -343,109 +343,111 @@ movePacman(), HEX 000
 	mP.pacman_ubi_ptr, HEX 0
 // END - movePacman()
 
-	moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad;cell_backup), Hex 0
-		Load mG.ghost_pos
-		Store dP.initialPos
-		Load mG.ghost_color
-		Store dP.ghostColor
+// Start - moveGhost()
+moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad;cell_backup), Hex 0
+	Load mG.ghost_pos
+	Store dP.initialPos
+	Load mG.ghost_color
+	Store dP.ghostColor
 
-		JnS detectPacman(initialPos;ghostColor)
-		Load dP.result
+	JnS detectPacman(initialPos;ghostColor)
+	Load dP.result
+	SkipCond 0C00
+		Jump mG.validateTarget
+	Store mG.ghost_direction
+	Load pacman_pos
+	Store mG.ghost_target
+			
+	mG.move_to_target, Load mG.ghost_pos
+		Add mG.ghost_direction
+		Store mG.positionToMove
+		Jump mG.movePos
+			
+	mG.validateTarget, Load mG.ghost_target
+		SkipCond 000
+			Jump mG.targetReached
+		Jump mG.cleanValue
+
+	mG.targetReached, Load mG.ghost_pos
+		Subt mG.ghost_target
 		SkipCond 0C00
-			Jump mG.validateTarget
-		Store mG.ghost_direction
-		Load pacman_pos
-		Store mG.ghost_target
-			
-		mG.move_to_target, Load mG.ghost_pos
-			Add mG.ghost_direction
-			Store mG.positionToMove
-			Jump mG.movePos
-			
-		mG.validateTarget, Load mG.ghost_target
-			SkipCond 000
-				Jump mG.targetReached
 			Jump mG.cleanValue
+		Jump mG.move_to_target
 
-		mG.targetReached, Load mG.ghost_pos
-			Subt mG.ghost_target
-			SkipCond 0C00
-				Jump mG.cleanValue
-			Jump mG.move_to_target
+	mG.cleanValue, Load -1
+		Store mG.ghost_target
+		LoadImmi 0
+		Store mG.ghost_direction
 
-		mG.cleanValue, Load -1
-			Store mG.ghost_target
-			LoadImmi 0
-			Store mG.ghost_direction
+	mG.generateRandom, Load mG.ghost_pos
+		Store gPA.pos_inicial
+		Load mG.ptr_array_prioridad
+		Store gPA.ptr_array_prioridad
+		Jns getPosAvail(pos_inicial;ptr_array_prioridad)
+		Load gPA.len_array
+		Store rnd.num_pos_avail
+		JnS random(num_pos_avail)
 
-		mG.generateRandom, Load mG.ghost_pos
-			Store gPA.pos_inicial
-			Load mG.ptr_array_prioridad
-			Store gPA.ptr_array_prioridad
-			Jns getPosAvail(pos_inicial;ptr_array_prioridad)
-			Load gPA.len_array
-			Store rnd.num_pos_avail
-			JnS random(num_pos_avail)
+	Load gPA.ptr_result_array
+	Add rnd.result
+	Store mG.temp_ptr
+	LoadI mG.temp_ptr // position of interest to move
+	Store mG.positionToMove
 
-			Load gPA.ptr_result_array
-			Add rnd.result
-			Store mG.temp_ptr
-			LoadI mG.temp_ptr // position of interest to move
-			Store mG.positionToMove
+	// The backup cell is only restored if the cell does not have a bolita or esteroide.
+	mG.movePos, LoadI mG.ghost_pos
+		Subt BOLITA_COLOR
+		SkipCond 0C00
+			Jump mG.getValidPos
+		LoadI mG.ghost_pos
+		Subt ESTEROIDE_COLOR
+		SkipCond 0C00
+			Jump mG.getValidPos
+		// restore the cell color where the ghost was
+		Load mG.cell_backup 
+		StoreI mG.ghost_pos
 
-		// The backup cell is only restored if the cell does not have a bolita or esteroide.
-		mG.movePos, LoadI mG.ghost_pos
-			Subt BOLITA_COLOR
-			SkipCond 0C00
-				Jump mG.getValidPos
-			LoadI mG.ghost_pos
-			Subt ESTEROIDE_COLOR
-			SkipCond 0C00
-				Jump mG.getValidPos
-			// restore the cell color where the ghost was
-			Load mG.cell_backup 
-			StoreI mG.ghost_pos
+	// Obtain the valid positin to move (used to calculate in mirror cases)
+	mG.getValidPos, Load mG.positionToMove
+	Store vP.posToCheck
+	Load mG.ghost_pos
+	Store vP.currentPos
+	JnS validatePos(currentPos;posToCheck) // the result will be always != 0
+	// store the original content of the cell (only for bolita and esteroide)
+	LoadI vP.result
+	SkipCond 0400
+		Jump mG.checkBolita
+	Jump mG.storeColor
 
-			// Obtain the valid positin to move (used to calculate in mirror cases)
-			mG.getValidPos, Load mG.positionToMove
-			Store vP.posToCheck
-			Load mG.ghost_pos
-			Store vP.currentPos
-			JnS validatePos(currentPos;posToCheck) // the result will be always != 0
-			// store the original content of the cell (only for bolita and esteroide)
-			LoadI vP.result
-			SkipCond 0400
-				Jump mG.checkBolita
-			Jump mG.storeColor
-
-		mG.checkBolita, Subt BOLITA_COLOR
-			SkipCond 0400
-				Jump mG.checkEsteroide
-			Jump mG.storeColor
+	mG.checkBolita, Subt BOLITA_COLOR
+		SkipCond 0400
+			Jump mG.checkEsteroide
+		Jump mG.storeColor
 				
-		mG.checkEsteroide, LoadI vP.result
-			Subt ESTEROIDE_COLOR
-			SkipCond 0400
-				Jump mG.moveGhost
-		mG.storeColor, LoadI vP.result
-			Store mG.cell_backup
+	mG.checkEsteroide, LoadI vP.result
+		Subt ESTEROIDE_COLOR
+		SkipCond 0400
+			Jump mG.moveGhost
+	mG.storeColor, LoadI vP.result
+		Store mG.cell_backup
 
-		mG.moveGhost, Load vP.result 
-			Store mG.positionToMove
-			Load mG.ghost_color
-			StoreI mG.positionToMove
+	mG.moveGhost, Load vP.result 
+		Store mG.positionToMove
+		Load mG.ghost_color
+		StoreI mG.positionToMove
 				
-		mG.return, JumpI moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad;cell_backup)
+	mG.return, JumpI moveGhost(ghost_direction;ghost_pos;ghost_color;ghost_target;ptr_array_prioridad;cell_backup)
 
-		// Variables
-		mG.cell_backup, DEC 0
-		mG.ghost_direction, DEC 0
-		mG.positionToMove, DEC 0
-		mG.temp_ptr, DEC 0
-		mG.ghost_pos, Dec 0
-		mG.ghost_color, DEC 0
-		mG.ptr_array_prioridad, DEC 0
-		mG.ghost_target, DEC -1
+	// Variables
+	mG.cell_backup, DEC 0
+	mG.ghost_direction, DEC 0
+	mG.positionToMove, DEC 0
+	mG.temp_ptr, DEC 0
+	mG.ghost_pos, Dec 0
+	mG.ghost_color, DEC 0
+	mG.ptr_array_prioridad, DEC 0
+	mG.ghost_target, DEC -1
+// End - moveGhost()
 
 // Start - reviewPositions()
 // Valida si pacman está sobre un fantasma y realiza la lógica correspondiente
@@ -1292,6 +1294,8 @@ generar_direcciones(semilla), HEX 0
 
 //Funcion mover pacman aleatoriamente
 movimiento_pacman_rand(pos_pacman), HEX 0
+	Load -1
+	Store mpr.pacman_next_ubi_ptr
 	Load mpr.pacman_ubi_ptr
 	Store gPA.pos_inicial
 	Subt OFFSET
@@ -1323,6 +1327,8 @@ movimiento_pacman_rand(pos_pacman), HEX 0
 
 //Funcion mover pacman en base a las bolitas
 movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad), HEX 0
+	Load -1
+	Store mpb.pacman_next_ubi_ptr
 	Load +1
 	Store mpb.radio
 	LoadImmi 4
@@ -1409,6 +1415,8 @@ movimiento_pacman_bolitas(pos_pacman;ptr_array_prioridad), HEX 0
 
 /Funcion movimiento pacman para huir de los fantasmas
 movimiento_pacman_fantasmas(pacman_pos;ptr_array_prioridad;ptr_fantasma_pos), HEX 0
+	Load -1
+	Store mpf.pacman_next_ubi_ptr
 	Load +1
 	Store mpf.radio
 	LoadImmi 4
@@ -1544,7 +1552,7 @@ movimiento_pacman_fantasmas(pacman_pos;ptr_array_prioridad;ptr_fantasma_pos), HE
 		Subt +1
 		Store gdp.ctr_generador
 		SkipCond 000
-		Jump calculo_numero_aleatorio
+			Jump calculo_numero_aleatorio
 		JumpI generar_direcciones_partida
 		calculo_numero_aleatorio, Load gdp.a
 		Store multiplicando
